@@ -61,7 +61,7 @@ import vml.com.vm.utils.*;
  *@see FacePose
  *
  */
-public class VMAvatar 
+public class VMAvatar
 {
 	Context mContext;
 	private static String TAG="VMAvatar";

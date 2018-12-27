@@ -1,53 +1,56 @@
 package vml.com.animation;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.support.v4.app.FragmentActivity;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.widget.Button;
 import android.widget.Spinner;
 
 
 public class MainActivity extends AppCompatActivity {
+    //TODO: AvatarAnimation variable
+    private AvatarAnimation avatarAnimation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // load fragment
 
+        //TODO: Get Fragment Manager
+        AvatarFragment fragment = (AvatarFragment) getFragmentManager().findFragmentById(R.id.fragment);
+        avatarAnimation = new AvatarAnimation(fragment);
+
+
+        Button button = (Button) findViewById(R.id.button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //TODO: 아크릴이 서버로부터 받아온 xml을 저장소에 저장하였다고 가정하고 /(저장하지않고 바로 input stream 줄 것 같지만)/ 여기서 경로 알려주면 xml 파일을 받아옴
+                //TODO: 아크릴에서 서버로부터 받아올 때, 우리에게 넘겨주는 함수 인자로 input stream을 주는지, string을 주는지 확인이 필요.
+                String root = Environment.getExternalStorageDirectory().getAbsolutePath();
+                avatarAnimation.setAnimation(root+"/VML_DEMO/Models/Animation/Girl/animation_without_lips.xml");
+            }
+        });
+
+
+        //TODO: For TEST!!!
         Button playButton = (Button) findViewById(R.id.play_btn);
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Spinner spinnerAnim = (Spinner) findViewById(R.id.spinner);
                 String animName = String.valueOf(spinnerAnim.getSelectedItem());
-                Log.i("CLICK", animName);
-
-                //TODO
-                AvatarFragment fragment = (AvatarFragment) getFragmentManager().findFragmentById(R.id.fragment);
-                AvatarAnimation avatarAnimation = new AvatarAnimation(fragment);
-
-                avatarAnimation.setAnimation(animName);
-
-                //fragment.mGLView.mRenderer.mAvatar.setAnimation(animName);
-                //fragment.mGLView.mRenderer.mAvatar.startAnimation();
-
-                //((TouchSurfaceView)mGLView).mRenderer.mAvatar.setAnimation(animName);
-                //((TouchSurfaceView)mGLView).mRenderer.mAvatar.startAnimation();
+                avatarAnimation.setAnimationTest(animName);
             }
         });
+
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
