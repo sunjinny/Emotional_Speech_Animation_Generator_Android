@@ -1422,7 +1422,8 @@ public class VMAvatar
 	 */
 	class Animator extends Thread 
 	{	/** Target Frames Per Second*/
-		private final static int 	MAX_FPS = 70;				// desired fps
+		//private final static int 	MAX_FPS = 70;				// desired fps
+		private final static int 	MAX_FPS = 16;				// desired fps
 		//** maximum number of allowed frames to skip*/
 		private final static int	MAX_FRAME_SKIPS = 5;			// maximum number of frames to be skipped
 		//**target time for a single frame*/
@@ -1710,7 +1711,9 @@ public class VMAvatar
 		/**Animation state*/
 		private boolean run=false;	//
 		/**current keyframe*/
-		private int currentIdx=0;		//
+		private int currentIdx = -1;		//
+		/**given animation time step*/
+		private float xmlTimeStep = 0.0f;		//
 		
 		/**Empty constructor. Animation needs to be setup by adding keys*/
 		public KeyFramedAnimation(){	}
@@ -1765,8 +1768,9 @@ public class VMAvatar
 		 */
 		public void start()
 		{
-			timeline=0;
-			currentIdx=0;
+			timeline = 0;
+			currentIdx = -1;
+			xmlTimeStep = keyframes.get(1).time -  keyframes.get(0).time;
 			if(!keyframes.isEmpty()) run=true;
 		}
 		/**
@@ -1776,7 +1780,7 @@ public class VMAvatar
 		public void stop()
 		{
 			timeline=0;
-			currentIdx=0;
+			currentIdx = -1;
 			run=false;
 		}
 		/**
@@ -1799,13 +1803,18 @@ public class VMAvatar
 		{
 			if(run)
 			{
-				timeline+=dt;
-								
+				timeline += dt;
+
+				if(dt > xmlTimeStep){
+					currentIdx = currentIdx + (int)(dt/xmlTimeStep);
+				}
+
+				if(timeline>=lastFrame) { run=false; return; }
+				if(timeline>=keyframes.get(currentIdx+2).time&& (currentIdx+1)!=keyframes.size() ) { currentIdx++; }
+
 				float weight= (float)(timeline - keyframes.get(currentIdx).time)/(float)( keyframes.get(currentIdx+1).time- keyframes.get(currentIdx).time);
 				setFacePose(smoothStep(  keyframes.get(currentIdx).pose, keyframes.get(currentIdx+1).pose, weight));
-				
-				if(timeline>=keyframes.get(currentIdx+1).time&& currentIdx!=keyframes.size() ) { currentIdx++; }
-				if(timeline>=lastFrame) { run=false; }
+
 			}
 		}
 		

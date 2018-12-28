@@ -32,6 +32,10 @@ public class AvatarAnimation {
         mFragment = fragment;
     }
 
+    public void updateAnimation(float time){
+
+    }
+
     //TODO: For TEST!!!
     public void setAnimationTest(String animationName) {
         mFragment.mGLView.mRenderer.mAvatar.setAnimation(animationName);
