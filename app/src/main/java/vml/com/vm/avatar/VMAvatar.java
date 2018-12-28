@@ -1423,12 +1423,12 @@ public class VMAvatar
 	class Animator extends Thread 
 	{	/** Target Frames Per Second*/
 		//private final static int 	MAX_FPS = 70;				// desired fps
-		private final static int 	MAX_FPS = 16;				// desired fps
+		private final static int 	MAX_FPS = 60;				// desired fps
 		//** maximum number of allowed frames to skip*/
 		private final static int	MAX_FRAME_SKIPS = 5;			// maximum number of frames to be skipped
 		//**target time for a single frame*/
 		private final static int	FRAME_PERIOD = 1000 / MAX_FPS;	// the frame period
-		
+
 //		/** range in degrees for the procedural head motion */
 //		float[] headMotionMultiplier= new float[]{5,10,3};
 //
@@ -1805,16 +1805,16 @@ public class VMAvatar
 			{
 				timeline += dt;
 
-				if(dt > xmlTimeStep){
-					currentIdx = currentIdx + (int)(dt/xmlTimeStep);
-				}
+				if(dt > xmlTimeStep){	currentIdx = currentIdx + (int)(dt/xmlTimeStep);	}
 
 				if(timeline>=lastFrame) { run=false; return; }
-				if(timeline>=keyframes.get(currentIdx+2).time&& (currentIdx+1)!=keyframes.size() ) { currentIdx++; }
+				if(timeline>=keyframes.get(currentIdx+2).time && (currentIdx+1)!=keyframes.size() ) { currentIdx++; }
+				else if(currentIdx == -1) { currentIdx++; }
 
+//				Log.d("ERROR Check", "idx: " + currentIdx);
+//				Log.d("ERROR Check", "timeline: " + timeline + "keyframes.get(currentIdx+2).time: "+keyframes.get(currentIdx+2).time);
 				float weight= (float)(timeline - keyframes.get(currentIdx).time)/(float)( keyframes.get(currentIdx+1).time- keyframes.get(currentIdx).time);
 				setFacePose(smoothStep(  keyframes.get(currentIdx).pose, keyframes.get(currentIdx+1).pose, weight));
-
 			}
 		}
 		
