@@ -34,6 +34,9 @@ public class MainActivity extends AppCompatActivity {
                 //TODO: 아크릴에서 서버로부터 받아올 때, 우리에게 넘겨주는 함수 인자로 input stream을 주는지, string을 주는지 확인이 필요.
                 String root = Environment.getExternalStorageDirectory().getAbsolutePath();
                 avatarAnimation.setAnimation(root+"/VML_DEMO/Models/Animation/Girl/animation_without_lips.xml");
+
+                //TODO: Audio Play and get the timing, pass it to the parameter
+                avatarAnimation.updateAnimation(100);
             }
         });
 

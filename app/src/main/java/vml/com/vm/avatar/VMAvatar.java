@@ -284,10 +284,8 @@ public class VMAvatar
 	{
 		//remove any existing animation
 		clearAnimation();
-		
 		if (animations.containsKey(AnimChoice))			
 			animator.animEngine.setKeys(animations.get(AnimChoice));
-		
 	}
 	
 	/**
@@ -296,6 +294,14 @@ public class VMAvatar
 	public void startAnimation()
 	{		
 		animator.animEngine.start();
+	}
+
+	/**
+	 * Updates the current audio timing in the animation engine
+	 */
+	public void updateAudioTiming(int time)
+	{
+		animator.animEngine.setAudioTiming(time);
 	}
 	
 	/**
@@ -1711,9 +1717,11 @@ public class VMAvatar
 		/**Animation state*/
 		private boolean run=false;	//
 		/**current keyframe*/
-		private int currentIdx = -1;		//
+		private int currentIdx = -1;
 		/**given animation time step*/
-		private float xmlTimeStep = 0.0f;		//
+		private int xmlTimeStep = 0;
+		/** update audio timing (ms) */
+		private int audioTiming = 100;
 		
 		/**Empty constructor. Animation needs to be setup by adding keys*/
 		public KeyFramedAnimation(){	}
@@ -1795,6 +1803,16 @@ public class VMAvatar
 					run= !run;	
 			}
 		}
+
+		public void setAudioTiming(int _audioTiming){
+			run=true;
+			audioTiming = _audioTiming;
+		}
+
+		public int getCurrentIdxFromAudioTiming(){
+			return audioTiming/xmlTimeStep;
+		}
+
 		/**
 		 * update the animation for the given passed time
 		 * @param dt update time in ms
@@ -1803,18 +1821,19 @@ public class VMAvatar
 		{
 			if(run)
 			{
-				timeline += dt;
+				currentIdx = getCurrentIdxFromAudioTiming();
 
-				if(dt > xmlTimeStep){	currentIdx = currentIdx + (int)(dt/xmlTimeStep);	}
-
-				if(timeline>=lastFrame) { run=false; return; }
-				if(timeline>=keyframes.get(currentIdx+2).time && (currentIdx+1)!=keyframes.size() ) { currentIdx++; }
-				else if(currentIdx == -1) { currentIdx++; }
-
-//				Log.d("ERROR Check", "idx: " + currentIdx);
-//				Log.d("ERROR Check", "timeline: " + timeline + "keyframes.get(currentIdx+2).time: "+keyframes.get(currentIdx+2).time);
-				float weight= (float)(timeline - keyframes.get(currentIdx).time)/(float)( keyframes.get(currentIdx+1).time- keyframes.get(currentIdx).time);
+				float weight= (float)(audioTiming - keyframes.get(currentIdx).time)/(float)( keyframes.get(currentIdx+1).time- keyframes.get(currentIdx).time);
 				setFacePose(smoothStep(  keyframes.get(currentIdx).pose, keyframes.get(currentIdx+1).pose, weight));
+
+				run=false;
+
+				/** Play from start to end */
+				//timeline += dt;
+				//if(dt > xmlTimeStep){	currentIdx = currentIdx + (int)(dt/xmlTimeStep);	}
+				//if(timeline>=lastFrame) { run=false; return; }
+				//if(timeline>=keyframes.get(currentIdx+2).time && (currentIdx+1)!=keyframes.size() ) { currentIdx++; }
+				//else if(currentIdx == -1) { currentIdx++; }
 			}
 		}
 		

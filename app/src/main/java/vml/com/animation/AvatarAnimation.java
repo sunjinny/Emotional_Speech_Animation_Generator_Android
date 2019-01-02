@@ -32,8 +32,8 @@ public class AvatarAnimation {
         mFragment = fragment;
     }
 
-    public void updateAnimation(float time){
-
+    public void updateAnimation(int time){
+        mFragment.mGLView.mRenderer.mAvatar.updateAudioTiming(time);
     }
 
     //TODO: For TEST!!!
