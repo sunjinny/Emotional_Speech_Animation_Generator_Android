@@ -6,9 +6,11 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import vml.com.animation.R;
 import android.content.Context;
+import android.media.FaceDetector;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.util.Log;
@@ -303,13 +305,22 @@ public class VMAvatar
 	{
 		animator.animEngine.setAudioTiming(time);
 	}
-	
-	/**
+
+    /**
+     * Disable, enable the blinking motion
+     */
+    public void doBlinking(boolean doBlink)
+    {
+        animator.doBlinking(doBlink);
+    }
+
+    /**
 	 * Stops the animation engine to play the current setup animation
 	 */
 	public void stopAnimation()
 	{		
 		animator.animEngine.stop();
+		//doBlinking(true);
 	}
 	
 	/**
@@ -563,6 +574,14 @@ public class VMAvatar
 	{
 		if(weights.length==mHead.faceModel.BSWeights.length)
 			mHead.faceModel.BSWeights=weights;
+	}
+
+	/**
+	 * Modifies the whole face blendshape weights to 0.0
+	 */
+	public void setNeutralFace()
+	{
+		animator.animEngine.blend();
 	}
 	
 	/**
@@ -1453,9 +1472,10 @@ public class VMAvatar
 		/**keyframe animation manager.
 		 * @see KeyFramedAnimation*/
 		public KeyFramedAnimation animEngine=new KeyFramedAnimation();
-//		/**Procedural blinking engine
-//		 * @see Blinker*/
-//		private Blinker blinkEngine=new Blinker();
+
+		/**Procedural blinking engine
+		 * @see Blinker*/
+		private Blinker blinkEngine=new Blinker();
 		
 		/**
 		 * enables the random blinking 
@@ -1465,10 +1485,10 @@ public class VMAvatar
 		public void doBlinking(boolean doBlink)
 		{
 
-//			if(doBlink)
-//				blinkEngine.start();
-//			else
-//				blinkEngine.stop();
+			if(doBlink)
+				blinkEngine.start();
+			else
+				blinkEngine.stop();
 		}
 		/**
 		 * enables/disables the procedural headMotion
@@ -1509,9 +1529,6 @@ public class VMAvatar
 //			if(yaw <0.0f) yaw=0.0f;
 //			if(roll <0.0f) roll=0.0f;
 //
-//
-//
-//
 //			headMotionSpeeds[0]=(1.0f-pitch)*19000+1000;
 //			headMotionSpeeds[1]=(1.0f-yaw)*19000+1000;
 //			headMotionSpeeds[2]=(1.0f-roll)*19000+1000;
@@ -1525,9 +1542,7 @@ public class VMAvatar
 		public Animator() 
 		{
 			super();
-			
 			sfps= new FPSCounter();
-			
 		}
 	
 		@Override
@@ -1547,7 +1562,7 @@ public class VMAvatar
 			sleepTime = 0;
 			
 			
-			//blinkEngine.start();
+			blinkEngine.start();
 			
 			timeline=0;
 			while (running) 
@@ -1572,9 +1587,9 @@ public class VMAvatar
 //					mHead.rotationOffset[1]=headMotionMultiplier[1]*ny;
 //					mHead.rotationOffset[2]=headMotionMultiplier[2]*nz;
 //				}
-				
+
 				animEngine.update(FRAME_PERIOD);
-				//blinkEngine.update(FRAME_PERIOD);
+				blinkEngine.update(FRAME_PERIOD);
 				
 				
 				timeDiff = System.currentTimeMillis() - beginTime;
@@ -1614,7 +1629,8 @@ public class VMAvatar
 			/** current blinking weight */
 			int currentIdx;			
 			/**blinking base timings*/
-			private int blinkTiming[]= {0,200,250,350};
+			//private int blinkTiming[]= {0,200,250,400};
+			private int blinkTiming[]= {200,400,450,600};
 			/**weights for the blink blendshapes*/
 			private int blinkWeights[]= {0,1,1,0};
 			/**animation state*/
@@ -1628,9 +1644,7 @@ public class VMAvatar
 			
 			public void start()
 			{
-			
 				timeline=0;
-				
 				currentIdx=0;
 				run = true;
 				timeToNextBlink=0;
@@ -1646,49 +1660,52 @@ public class VMAvatar
 				{	
 					if(timeToNextBlink<=0)
 					{
+						//if(timeline==0)
 						if(timeline==0)
 						{
 							startWeight[0]=mHead.faceModel.BSWeights[blinkLID];
 							startWeight[1]=mHead.faceModel.BSWeights[blinkRID];
 						}
 						timeline+=dt;
-						
-						state= blinkWeights[currentIdx+1] -blinkWeights[currentIdx];
-						
-						float tweight= (float)(timeline - blinkTiming[currentIdx])/(float)( blinkTiming[currentIdx+1]- blinkTiming[currentIdx]);
-						
-						float weight=1.0f;
-						
-						if(state>0)			weight=tweight;
-						else if(state<0)	weight= 1- tweight;
-						
-						weight=Math.min(1.0f, Math.max(0.0f,weight));
-						
-						//applyBlink heere						
-						mHead.faceModel.BSWeights[blinkLID]= weight + (1-weight)*startWeight[0] ;
-						mHead.faceModel.BSWeights[blinkRID]= weight + (1-weight)*startWeight[1] ;
-						
-						//Log.i("Animator","                  w:"+mHead.faceModel.BSWeights[blinkLID] );
-						
-						if(timeline>=blinkTiming[currentIdx+1]&& currentIdx!=blinkTiming.length-2 )
-						{
-							currentIdx++;
-						}
-						
-						if(timeline>=blinkTiming[blinkTiming.length-1]) 
-						{
-							mHead.faceModel.BSWeights[blinkLID]= startWeight[0] ;
-							mHead.faceModel.BSWeights[blinkRID]= startWeight[1] ;
-							
-							timeToNextBlink=200 + (int)(Math.random()*5000 );
-							int step = (100+(int)Math.random()*50)/2;
-							
-							//restart			
-							currentIdx=0;
-							timeline=0;
-							blinkTiming[1]=step;
-							blinkTiming[2]=step+50;
-							blinkTiming[3]=2*step+50;
+
+						if(timeline>200) {
+							state = blinkWeights[currentIdx + 1] - blinkWeights[currentIdx];
+
+							float tweight = (float) (timeline - blinkTiming[currentIdx]) / (float) (blinkTiming[currentIdx + 1] - blinkTiming[currentIdx]);
+
+							float weight = 1.0f;
+
+							if (state > 0) weight = tweight;
+							else if (state < 0) weight = 1 - tweight;
+
+							weight = Math.min(1.0f, Math.max(0.0f, weight));
+
+							//applyBlink here
+							mHead.faceModel.BSWeights[blinkLID] = weight + (1 - weight) * startWeight[0];
+							mHead.faceModel.BSWeights[blinkRID] = weight + (1 - weight) * startWeight[1];
+
+							//Log.i("Animator","                  w:"+mHead.faceModel.BSWeights[blinkLID] );
+
+							if (timeline >= blinkTiming[currentIdx + 1] && currentIdx != blinkTiming.length - 2) {
+								currentIdx++;
+							}
+
+							if (timeline >= blinkTiming[blinkTiming.length - 1]) {
+								mHead.faceModel.BSWeights[blinkLID] = startWeight[0];
+								mHead.faceModel.BSWeights[blinkRID] = startWeight[1];
+
+
+								timeToNextBlink = 4800 * 2 / 3 + (int) (Math.random() * 1000 - 500);
+								//timeToNextBlink=200 + (int)(Math.random()*5000 );
+								//int step = (100+(int)Math.random()*50)/2;
+
+								//restart
+								currentIdx = 0;
+								timeline = 0;
+								//							blinkTiming[1]=step;
+								//							blinkTiming[2]=step+50;
+								//							blinkTiming[3]=2*step+50;
+							}
 						}
 					}
 					else
@@ -1715,13 +1732,16 @@ public class VMAvatar
 		/**The last frame time of the animation (update when keyFrames are added)*/
 		private int lastFrame=0;		//
 		/**Animation state*/
-		private boolean run=false;	//
+		private boolean run_speech=false;	//
+		private boolean run_blend=false;	//
+		/**current facePose*/
+		private FacePose facePose;
 		/**current keyframe*/
 		private int currentIdx = -1;
 		/**given animation time step*/
-		private int xmlTimeStep = 0;
+		private int xmlTimeStep = 16;
 		/** update audio timing (ms) */
-		private int audioTiming = 100;
+		private int audioTiming = 0;
 		
 		/**Empty constructor. Animation needs to be setup by adding keys*/
 		public KeyFramedAnimation(){	}
@@ -1747,7 +1767,7 @@ public class VMAvatar
 			KeyFrame key = new KeyFrame();
 			key.time= time;
 			key.pose=keyPose;			
-			keyframes.add(key);			
+			keyframes.add(key);
 			Collections.sort(keyframes, new KeyFrameComparator() ); //sort with respect to time			
 			if(lastFrame < time) lastFrame=time;			
 		}
@@ -1779,7 +1799,7 @@ public class VMAvatar
 			timeline = 0;
 			currentIdx = -1;
 			xmlTimeStep = keyframes.get(1).time -  keyframes.get(0).time;
-			if(!keyframes.isEmpty()) run=true;
+			if(!keyframes.isEmpty()) run_speech=true;
 		}
 		/**
 		 * Stops and rewinds the animation.
@@ -1789,7 +1809,15 @@ public class VMAvatar
 		{
 			timeline=0;
 			currentIdx = -1;
-			run=false;
+			run_speech=false;
+		}
+		/**
+		 * Blends animation from stop position to neutral position
+		 */
+		public void blend()
+		{
+			stop();
+			run_blend = true;
 		}
 		/**
 		 * Pauses/ unpauses the animation
@@ -1800,12 +1828,12 @@ public class VMAvatar
 			if(!keyframes.isEmpty()) //if there is an animation ready for play
 			{
 				if(timeline < lastFrame && timeline >0) //we can only pause/resume in the middle of the sequence 
-					run= !run;	
+					run_speech= !run_speech;
 			}
 		}
 
 		public void setAudioTiming(int _audioTiming){
-			run=true;
+			//run_speech=true;
 			audioTiming = _audioTiming;
 		}
 
@@ -1819,21 +1847,39 @@ public class VMAvatar
 		 */
 		public void update(int dt)
 		{
-			if(run)
+			if(run_speech)
 			{
 				currentIdx = getCurrentIdxFromAudioTiming();
 
-				float weight= (float)(audioTiming - keyframes.get(currentIdx).time)/(float)( keyframes.get(currentIdx+1).time- keyframes.get(currentIdx).time);
-				setFacePose(smoothStep(  keyframes.get(currentIdx).pose, keyframes.get(currentIdx+1).pose, weight));
+				if(keyframes.size()<=currentIdx+1) return;
 
-				run=false;
+				float weight= (float)(audioTiming - keyframes.get(currentIdx).time)/(float)( keyframes.get(currentIdx+1).time- keyframes.get(currentIdx).time);
+				facePose = smoothStep(  keyframes.get(currentIdx).pose, keyframes.get(currentIdx+1).pose, weight );
+				setFacePose(facePose);
+
+				//run_speech=false;
+				//doBlinking(true);
 
 				/** Play from start to end */
 				//timeline += dt;
 				//if(dt > xmlTimeStep){	currentIdx = currentIdx + (int)(dt/xmlTimeStep);	}
-				//if(timeline>=lastFrame) { run=false; return; }
+				//if(timeline>=lastFrame) { run_speech=false; return; }
 				//if(timeline>=keyframes.get(currentIdx+2).time && (currentIdx+1)!=keyframes.size() ) { currentIdx++; }
 				//else if(currentIdx == -1) { currentIdx++; }
+			}
+
+			if(run_blend)
+			{
+				timeline += dt;
+
+				float weight= (float)timeline/500.0f;
+				FacePose tmpPose = smoothStep(facePose, 0.0f, weight);
+				setFacePose(tmpPose);
+
+				if(timeline >= 500){
+					run_blend = false;
+					doBlinking(true);
+				}
 			}
 		}
 		
@@ -1845,6 +1891,7 @@ public class VMAvatar
 		 * @param weight interpolation step
 		 * @return FacePose resulting face expression
 		 */
+
 		private FacePose smoothStep(FacePose curPose, FacePose nextPose, float weight)
 		{
 			//FacePose interPose= new FacePose(nextPose.faceWeights,nextPose.mouthWeights);
@@ -1861,8 +1908,30 @@ public class VMAvatar
 			
 			return interPose;
 		}
-		
-	}	
+
+		private FacePose smoothStep(FacePose curPose, float allWeights, float weight)
+		{
+
+
+			float[] weights = new float[mHead.faceModel.BSWeights.length];
+			for(int i=0; i<weights.length; i++) weights[i] = allWeights;
+
+			//FacePose interPose= new FacePose(nextPose.faceWeights,nextPose.mouthWeights);
+			FacePose interPose= new FacePose(weights);
+
+			for(int i=0; i<curPose.faceWeights.length; i++)
+			{
+				interPose.faceWeights[i]=weight*interPose.faceWeights[i]+(1-weight)*curPose.faceWeights[i];
+			}
+//			for(int i=0; i<nextPose.mouthWeights.length; i++)
+//			{
+//				interPose.mouthWeights[i]=weight*interPose.mouthWeights[i]+(1-weight)*curPose.mouthWeights[i];
+//			}
+
+			return interPose;
+		}
+
+	}
 
 	}
 

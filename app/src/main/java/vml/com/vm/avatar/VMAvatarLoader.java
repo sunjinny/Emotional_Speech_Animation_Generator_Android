@@ -124,15 +124,15 @@ public class VMAvatarLoader
 			avatar.setEyePos(eyeleftTrans,eyerightTrans);
 
 			//get Blink
-//			Element blinkNode=(Element) headNode.getElementsByTagName("blink").item(0);
-//			int leftBlink = Integer.parseInt(blinkNode.getAttribute("left"));
-//			int rightBlink = Integer.parseInt(blinkNode.getAttribute("right"));
+			Element blinkNode=(Element) headNode.getElementsByTagName("blink").item(0);
+			int leftBlink = Integer.parseInt(blinkNode.getAttribute("left"));
+			int rightBlink = Integer.parseInt(blinkNode.getAttribute("right"));
 
-			///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//			avatar.setBlinkIDs(leftBlink, rightBlink);
-//
-//
-//			//mouthLinks
+			/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			avatar.setBlinkIDs(leftBlink, rightBlink);
+
+
+			//mouthLinks
 //			Element mLinksNodes = (Element) headNode.getElementsByTagName("mouthLinks").item(0);
 //			if(mLinksNodes.hasChildNodes())
 //			{

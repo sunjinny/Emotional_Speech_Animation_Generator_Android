@@ -81,7 +81,7 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
 
 		mAvatar.initRenderScript();
 
-		//mAvatar.enableBlinking(true);
+		mAvatar.enableBlinking(true);
 		//mAvatar.enableHeadMotion(true);
 
 		new Thread() {

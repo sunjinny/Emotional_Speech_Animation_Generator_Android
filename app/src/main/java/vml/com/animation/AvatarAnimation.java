@@ -32,7 +32,14 @@ public class AvatarAnimation {
         mFragment = fragment;
     }
 
+    public void playIdleMotion(){
+        //mFragment.mGLView.mRenderer.mAvatar.stopAnimation();
+        mFragment.mGLView.mRenderer.mAvatar.setNeutralFace();
+    }
+
+    //time in milliseconds
     public void updateAnimation(int time){
+        mFragment.mGLView.mRenderer.mAvatar.doBlinking(false);
         mFragment.mGLView.mRenderer.mAvatar.updateAudioTiming(time);
     }
 
