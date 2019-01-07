@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,16 +50,15 @@ public class AvatarAnimation {
         mFragment.mGLView.mRenderer.mAvatar.startAnimation();
     }
 
-    public void setAnimation(String animationName){
+    public void setAnimation(InputStream animation){
         //mFragment.mGLView.mRenderer.mAvatar.setAnimation(animationName);
         //mFragment.mGLView.mRenderer.mAvatar.startAnimation();
 
         try {
             //open file
-            FileInputStream is = new FileInputStream(new File(animationName));
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(is);
+            Document doc = dBuilder.parse(animation);
             Element element = doc.getDocumentElement();
             element.normalize();
 
@@ -117,10 +117,7 @@ public class AvatarAnimation {
                 }
             }
             mFragment.mGLView.mRenderer.mAvatar.addAnimation(animName, keys);
-
-            //close file
-            is.close(); //close anim file
-
+            animation.close();
         } catch (SAXException e) {
             e.printStackTrace();
         } catch (FileNotFoundException e) {

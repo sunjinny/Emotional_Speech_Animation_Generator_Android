@@ -1,15 +1,15 @@
 package vml.com.animation;
 
+import android.content.res.AssetManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.Spinner;
+import java.io.IOException;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -26,19 +26,22 @@ public class MainActivity extends AppCompatActivity {
         //TODO: Get Fragment Manager
         AvatarFragment fragment = (AvatarFragment) getFragmentManager().findFragmentById(R.id.fragment);
         avatarAnimation = new AvatarAnimation(fragment);
-        mediaPlayer = MediaPlayer.create(this, R.raw.sad);
+        mediaPlayer = MediaPlayer.create(this, R.raw.joy);
 
 
         Button button = (Button) findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: 아크릴이 서버로부터 받아온 xml을 저장소에 저장하였다고 가정하고 /(저장하지않고 바로 input stream 줄 것 같지만)/ 여기서 경로 알려주면 xml 파일을 받아옴
-                //TODO: 아크릴에서 서버로부터 받아올 때, 우리에게 넘겨주는 함수 인자로 input stream을 주는지, string을 주는지 확인이 필요.
-                String root = Environment.getExternalStorageDirectory().getAbsolutePath();
-                avatarAnimation.setAnimation(root+"/VML_DEMO/Models/Animation/Girl/sad.xml");
-
-                Log.i("TEST","-------------------------------------------------------Audio play");
+                //TODO: 아크릴이 서버로부터 xml 파일을 inputstream으로 받아서 넘겨준다고 가정.
+                //String root = Environment.getExternalStorageDirectory().getAbsolutePath();
+                //avatarAnimation.setAnimation(root+"/VML_DEMO/Models/Animation/Girl/joy_anim.xml");
+                AssetManager assetManager = getResources().getAssets();
+                try{
+                    avatarAnimation.setAnimation(assetManager.open("joy_anim.xml"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
                 //TODO: Audio Play and get the timing, pass it to the parameter
                 mediaPlayer.start();
@@ -50,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
                     avatarAnimation.updateAnimation(mediaPlayer.getCurrentPosition());
                 }
             }
-
         });
 
 
