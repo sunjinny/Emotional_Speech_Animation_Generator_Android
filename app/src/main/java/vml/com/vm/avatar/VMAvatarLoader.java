@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,8 @@ import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 import android.content.Context;
+import android.content.res.AssetManager;
+import android.os.Environment;
 import android.util.Log;
 
 import vml.com.vm.utils.FacePose;
@@ -29,7 +32,7 @@ import vml.com.vm.utils.KeyFrame;
  * Loader class for the VMAvatar Class
  * It loads an avatar XML file from the SDcard or the assets.
  * 
- * @author Roger Blanco i Ribera
+ * @author Roger Blanco i Ribera, Sunjin Jung
  *
  */
 public class VMAvatarLoader 
@@ -39,23 +42,25 @@ public class VMAvatarLoader
 	static final String outputEncoding = "UTF-8";
 
 	/**
-	 * load Avatar from a XML file on the SDCard
+	 * load Avatar from a XML file on the Assets
 	 * @param ctx					Activity context
 	 * @param avatarFileName		complete path to the avatar XML file
 	 * @return 					returns the loaded avatar
 	 */		
 	public static VMAvatar loadAvatar(Context ctx, String avatarFileName)
 	{
+		AssetManager assetManager = ctx.getResources().getAssets();
+
+
+		//String[] avFileName_factorized = avatarFileName.split("/");
+		//String avFileName = avFileName_factorized[avFileName_factorized.length-1];
 		
-		String[] avFileName_factorized = avatarFileName.split("/");
-		String avFileName = avFileName_factorized[avFileName_factorized.length-1];
-		
-		int lastIndex = avatarFileName.lastIndexOf(avFileName);
-		String modelPath = avatarFileName.substring(0,lastIndex-1);
-		
-		Log.d("AvatarLoader", avatarFileName);
-		Log.d("AvatarLoader", modelPath);
-		Log.d("AvatarLoader", avFileName);
+		//int lastIndex = avatarFileName.lastIndexOf(avFileName);
+		//String modelPath = avatarFileName.substring(0,lastIndex-1);
+		//
+		//Log.d("AvatarLoader", avatarFileName);
+		//Log.d("AvatarLoader", modelPath);
+		//Log.d("AvatarLoader", avFileName);
 		
 		try
 		{
@@ -64,7 +69,8 @@ public class VMAvatarLoader
 			String smouthModel,smouthMaterial;
 			String seyeModel,seyeMaterial;
 			
-			FileInputStream is = new FileInputStream(new File(avatarFileName));
+			//FileInputStream is = new FileInputStream(new File(avatarFileName));
+			InputStream is = assetManager.open(avatarFileName);
 			
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();  
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();  
@@ -104,7 +110,7 @@ public class VMAvatarLoader
 //													modelPath+"/"+seyeModel,
 //													modelPath+"/"+seyeMaterial);
 
-			VMAvatar  avatar = new VMAvatar( ctx,	modelPath+"/"+sfaceModel,modelPath+"/"+sfaceMaterial, modelPath+"/"+seyeModel, modelPath+"/"+seyeMaterial);
+			VMAvatar  avatar = new VMAvatar( ctx,	sfaceModel,sfaceMaterial, seyeModel, seyeMaterial);
 
 			//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -177,7 +183,7 @@ public class VMAvatarLoader
 					String cExtMat = curEl.getAttributes().getNamedItem("material").getNodeValue();
 
 					///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-					avatar.addExtraModelToHead( modelPath+"/"+cExtMod, modelPath+"/"+cExtMat);
+					avatar.addExtraModelToHead( cExtMod, cExtMat);
 
 					//Log.i("XML","extra"+cExtMod+" "+cExtMat);
 				}
@@ -197,7 +203,7 @@ public class VMAvatarLoader
 					String cExtMat = curEl.getAttributes().getNamedItem("material").getNodeValue();
 
 					///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-					avatar.addExtraModel( modelPath+"/"+cExtMod,modelPath+"/"+cExtMat);
+					avatar.addExtraModel( cExtMod, cExtMat);
 
 					//Log.i("XML","extra"+cExtMod+" "+cExtMat);
 				}
@@ -230,48 +236,6 @@ public class VMAvatarLoader
 					}
 				}
 			}
-//			Log.i("AniXML","emotions");
-//			//Emotions !!
-//			Element emotionNodes = (Element) avatarEl.getElementsByTagName("emotionList").item(0);
-//			if(emotionNodes.hasChildNodes())
-//			{
-//
-//				NodeList emoList = emotionNodes.getElementsByTagName("emotion");
-//				for(int i=0; i<emoList.getLength(); i++)
-//				{
-//					Element curEl=(Element) emoList.item(i);
-//
-//					String emoName= curEl.getAttribute("name");
-//					Element faceWNode = (Element) curEl.getElementsByTagName("faceWeights").item(0);
-//					Text faceWText = (Text) faceWNode.getFirstChild();
-//					String stringFaceWeights=faceWText.getNodeValue();
-//
-//					Element mouthWNode = (Element) curEl.getElementsByTagName("mouthWeights").item(0);
-//					Text mouthWText = (Text) mouthWNode.getFirstChild();
-//					String stringmouthWeights=mouthWText.getNodeValue();
-//
-//					String[] partsFW = stringFaceWeights.split(" ");
-//					String[] partsMW = stringmouthWeights.split(" ");
-//
-//					Log.i("Emotions", "n: "+emoName );
-//					//Log.i("EmO", "face n:"+partsMW.length+" "+ stringFaceWeights );
-//					//Log.i("EmO", " mouth n:"+partsFW.length+" "+ stringmouthWeights );
-//
-//					float[] fw= new float[partsFW.length];
-//					for( int j=0; j< partsFW.length;j++)
-//					{
-//						fw[j]= Float.parseFloat(partsFW[j]);
-//					}
-//					float[] mw= new float[partsMW.length];
-//					for( int j=0; j< partsMW.length;j++)
-//					{
-//						mw[j]= Float.parseFloat(partsMW[j]);
-//					}
-//
-//					///////////////////////////////////////////////////////////////////////
-//					avatar.addEmotion(emoName, fw, mw);
-//				}
-//			}
 //
 //			//Visemes
 //			Element visemeNodes = (Element) avatarEl.getElementsByTagName("visemeList").item(0);
@@ -322,9 +286,7 @@ public class VMAvatarLoader
 				for(int i=0; i<animFiles.size(); i++)
 				{
 					//open file
-					is = new FileInputStream(new File(modelPath+"/"+animFiles.get(i)));
-
-					Log.i("AnimXML2", "opening "+modelPath+"/"+animFiles.get(i));
+					is = assetManager.open(animFiles.get(i));
 
 					dbFactory = DocumentBuilderFactory.newInstance();
 					dBuilder = dbFactory.newDocumentBuilder();

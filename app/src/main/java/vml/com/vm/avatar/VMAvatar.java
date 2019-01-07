@@ -147,8 +147,8 @@ public class VMAvatar
 	 *
 	 * @param context
 	 */
-	public VMAvatar(Context context, 	String faceBobFile,  String faceBobMatFile, 
-										String mouthBobFile, String mouthMatFile, 
+	public VMAvatar(Context context, 	String faceBobFile,  String faceBobMatFile,
+										String mouthBobFile, String mouthMatFile,
 										String eyeBobFile,	 String eyeMatFile)
 	{	
 		mContext=context;
@@ -622,7 +622,7 @@ public class VMAvatar
 	 *to the heads orientation	 *
 	 * 
 	 * @param mod			bob model file
-	 * @param mat			material file 
+	 * @param mat			material file
 	 * @throws IOException loading file problem 
 	 */
 	public void addExtraModel(String modfile, String matfile) throws IOException
@@ -632,7 +632,7 @@ public class VMAvatar
 			extraModels.add(VMBOLoader.loadModel(mContext, modfile));
 			
 			if(matfile==""|| matfile=="default"||matfile=="Default")
-			{				
+			{
 				extraMaterials.add(new VMMaterial());
 			}
 			else
@@ -649,30 +649,30 @@ public class VMAvatar
 	
 	/**
 	 *Attaches the given model to the Extra Models group from the specified file in the assets folder
-	 *That model will only undergo global scene transforms and will not be subject 
+	 *That model will only undergo global scene transforms and will not be subject
 	 *to the heads orientation	 *
-	 * 
+	 *
 	 * @param mod			bob model file
-	 * @param mat			material file 
-	 * @throws IOException loading file problem 
+	 * @param mat			material file
+	 * @throws IOException loading file problem
 	 */
-	
+
 	public void addAssetExtraModel(String modfile, String matfile) throws IOException
 	{
 		try
 		{
 			extraModels.add(VMBOLoader.loadModelAsset(mContext,modfile));
-			
+
 			if(matfile==""|| matfile=="default"||matfile=="Default")
-			{				
+			{
 				extraMaterials.add(new VMMaterial());
 			}
 			else
 			{
 				extraMaterials.add(VMBOLoader.loadMaterialsAsset(mContext,matfile));
 			}
-			
-		} catch (IOException e) 
+
+		} catch (IOException e)
 		{
 			Log.e(TAG,"Error: Could not add "+modfile+" to head");
 			//e.printStackTrace();
@@ -684,7 +684,7 @@ public class VMAvatar
 	 *The model will be subject to head transformations (ie. it will follow the head)
 	 * 
 	 * @param mod			bob model file
-	 * @param mat			material file 
+	 * @param mat			material file
 	 * @throws IOException  Loading problem
 	 */
 	public void addExtraModelToHead(String modfile, String matfile) throws IOException
@@ -710,9 +710,9 @@ public class VMAvatar
 	/**
 	 *Attaches the given model to the Head Models group from the specified file in assets folder.
 	 *The model will be subject to head transformations (ie. it will follow the head)
-	 * 
+	 *
 	 * @param mod			bob model file
-	 * @param mat			material file 
+	 * @param mat			material file
 	 * @throws IOException  Loading problem
 	 */
 	public void addAssetExtraModelToHead(String modfile, String matfile) throws IOException
@@ -727,8 +727,8 @@ public class VMAvatar
 			{
 				mHead.addExtraModel(VMBOLoader.loadModel(mContext,modfile),VMBOLoader.loadMaterialsAsset(mContext,matfile));
 			}
-			
-		} catch (IOException e) 
+
+		} catch (IOException e)
 		{
 			Log.e(TAG,"Error: Could not add "+modfile+" to head");
 			//e.printStackTrace();
@@ -999,8 +999,8 @@ public class VMAvatar
 	    
 	    private AvatarEye mEye;
 	    
-		public AvatarHead(String faceBobFile,  String faceBobMatFile, 
-							String mouthBobFile, String mouthMatFile, 
+		public AvatarHead(String faceBobFile,  String faceBobMatFile,
+							String mouthBobFile, String mouthMatFile,
 							String eyeBobFile,	 String eyeMatFile) throws IOException
 		{
 			faceModel=VMBOLoader.loadModel(mContext,faceBobFile);
@@ -1879,6 +1879,7 @@ public class VMAvatar
 				if(timeline >= 500){
 					run_blend = false;
 					doBlinking(true);
+					facePose = tmpPose;
 				}
 			}
 		}
@@ -1911,18 +1912,17 @@ public class VMAvatar
 
 		private FacePose smoothStep(FacePose curPose, float allWeights, float weight)
 		{
-
-
 			float[] weights = new float[mHead.faceModel.BSWeights.length];
 			for(int i=0; i<weights.length; i++) weights[i] = allWeights;
 
 			//FacePose interPose= new FacePose(nextPose.faceWeights,nextPose.mouthWeights);
 			FacePose interPose= new FacePose(weights);
 
-			for(int i=0; i<curPose.faceWeights.length; i++)
-			{
-				interPose.faceWeights[i]=weight*interPose.faceWeights[i]+(1-weight)*curPose.faceWeights[i];
-			}
+			if(curPose != null)
+				for(int i=0; i<curPose.faceWeights.length; i++)
+				{
+					interPose.faceWeights[i]=weight*interPose.faceWeights[i]+(1-weight)*curPose.faceWeights[i];
+				}
 //			for(int i=0; i<nextPose.mouthWeights.length; i++)
 //			{
 //				interPose.mouthWeights[i]=weight*interPose.mouthWeights[i]+(1-weight)*curPose.mouthWeights[i];
@@ -1930,7 +1930,6 @@ public class VMAvatar
 
 			return interPose;
 		}
-
 	}
 
 	}

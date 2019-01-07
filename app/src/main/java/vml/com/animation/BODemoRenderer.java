@@ -64,7 +64,11 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
 
 
 		String root = Environment.getExternalStorageDirectory().getAbsolutePath();
-		mAvatar=VMAvatarLoader.loadAvatar(context, root+"/VML_DEMO/Models/Animation/Girl/Girl.xml");
+		//mAvatar=VMAvatarLoader.loadAvatar(context, root+"/VML_DEMO/Models/Animation/Girl/Girl.xml");
+		mAvatar=VMAvatarLoader.loadAvatar(context, "Girl.xml");
+
+
+
 		//file:///android_asset/Bonnie.xml
 
 //		PackageManager m = context.getPackageManager();

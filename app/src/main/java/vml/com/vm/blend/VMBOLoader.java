@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -14,6 +15,7 @@ import java.util.HashMap;
 import java.util.regex.Pattern;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
@@ -23,7 +25,7 @@ import vml.com.vm.utils.VMMaterial;
 /**
  *Data Class ObjMaterial
  *Contains render material information in the style of OBJ format (.mat) 
- * @author Roger Blanco i Ribera
+ * @author Roger Blanco i Ribera, Sunjin Jung
  *
  */
 class ObjMaterial 
@@ -387,32 +389,32 @@ public class VMBOLoader
 	 * @param mtlFilePath material file path
 	 * @return returns the loaded material
 	 */
-	public static VMMaterial loadMaterials(Context ctx, String mtlFilePath) 
+	public static VMMaterial loadMaterials(Context ctx, String mtlFilePath)
 	{
 		HashMap<String,ObjMaterial> materials = new HashMap<String,ObjMaterial>();
-		
-		String[] matFileName_factorized = mtlFilePath.split("/");
-		String matFileName = matFileName_factorized[matFileName_factorized.length-1];
-		
-		int lastIndex = mtlFilePath.lastIndexOf(matFileName);
-		String modelPath = mtlFilePath.substring(0,lastIndex-1);
-		
-		Log.i("MATERIAL", matFileName);
-		
-		File matFile = new File(mtlFilePath);
-		FileInputStream fIn = null;
+//
+//		String[] matFileName_factorized = mtlFilePath.split("/");
+//		String matFileName = matFileName_factorized[matFileName_factorized.length-1];
+//
+//		int lastIndex = mtlFilePath.lastIndexOf(matFileName);
+//		String modelPath = mtlFilePath.substring(0,lastIndex-1);
+
+		Log.i("MATERIAL", mtlFilePath);
+
+        AssetManager assetManager = ctx.getResources().getAssets();
+        InputStream is;
 		try {
-			fIn = new FileInputStream(matFile);
-		} catch (FileNotFoundException e1) 
-		{
-			Log.e(TAG,"Material file not found !");
-			e1.printStackTrace();
-		}
-		
+            is = assetManager.open(mtlFilePath);
+		} catch (IOException ex)
+        {
+            Log.e(TAG,"Cannot read the material file "+mtlFilePath);
+            ex.printStackTrace();
+            return null;
+        }
+
     	//Log.i("MATERIAL","mtlFilePath: "+mtlFilePath);
-    	
-		BufferedReader reader = new BufferedReader(new InputStreamReader(fIn));		
-		
+		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+
 		String line;
 		ObjMaterial currentMaterial = null;
 		
@@ -469,37 +471,25 @@ public class VMBOLoader
 				else if (tokens[0].equals("map_Ka") || tokens[0].equals("map_Kd") ) 
 				{
 					// XXX - TODO - implement multitexturing
-					if (currentMaterial.texture == null) 
+					if (currentMaterial.texture == null)
 					{
-						String textureFileName =
-							new File(new File(matFileName).getParent(), tokens[1]).getPath();
-						
-						String texturePath = modelPath+"/"+textureFileName;
-						
-						//Log.d("TEXTURE","texturePath: "+texturePath);
-						
-						File textureFile = new File(texturePath);
-						FileInputStream textureInput = new FileInputStream(textureFile);
-						currentMaterial.texture = BitmapFactory.decodeStream(textureInput);
+						currentMaterial.texture = BitmapFactory.decodeStream( assetManager.open("Data/"+tokens[1]));
 						if (currentMaterial.texture == null)
-							throw new RuntimeException("Unable to load texture file "+textureFileName);
+							throw new RuntimeException("Unable to load texture file "+ "Data/"+tokens[1]);
 					}
 				} else if (tokens[0].equals("bump")) 
 				{
 					if (currentMaterial.bump == null) 
 					{
-						String bumpFileName =
-							new File(new File(matFileName).getParent(), tokens[1]).getPath();
-						currentMaterial.bump = BitmapFactory.decodeStream(ctx.getAssets().open(bumpFileName));
+						currentMaterial.bump = BitmapFactory.decodeStream( assetManager.open("Data/"+tokens[1]));
 						if (currentMaterial.bump == null)
-							throw new RuntimeException("Unable to load texture file "+bumpFileName);
+							throw new RuntimeException("Unable to load texture file "+ "Data/"+tokens[1] );
 					}
 				} else 
 				{
 					//TODO - we don't support this yet
 				}
 			}
-			fIn.close();
 		} 
 		catch (IOException e) 
 		{
@@ -530,12 +520,10 @@ public class VMBOLoader
 	
 	public static VMBOModel loadModel(Context ctx, String bobFilePath) throws IOException
 	{
-		
 		//XXX TODO XXX : Deal with the case when there is no Normals or no UVS
-		
-		
+
+        AssetManager assetManager = ctx.getResources().getAssets();
 		Log.i(TAG,"Reading  "+bobFilePath);
-		
 
 		VMBOModel model = new VMBOModel();
 		DataInputStream reader;
@@ -543,12 +531,8 @@ public class VMBOLoader
 		///////////////////////////////////////////////////////////////////////////////////////
 		//opening the file
 		try  
-		{ 
-
-			
-			File bobFile = new File(bobFilePath);
-			FileInputStream fIn = new FileInputStream(bobFile);
-			reader = new DataInputStream(fIn);		
+		{
+			reader = new DataInputStream(assetManager.open(bobFilePath));
 			//reader = new DataInputStream(new BufferedInputStream(ctx.getAssets().open(bobFilePath)));		
 		
 
