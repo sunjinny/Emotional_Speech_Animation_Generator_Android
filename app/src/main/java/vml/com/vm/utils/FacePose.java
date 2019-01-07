@@ -5,7 +5,7 @@ package vml.com.vm.utils;
 * it contains the weights associated with the face blendshapes and 
 * the mouth blendshapes
 * 
-* @author Roger Blanco i Ribera
+* @author Roger Blanco i Ribera, Sunjin Jung
 * 
 */
 

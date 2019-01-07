@@ -6,11 +6,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-
 import vml.com.animation.R;
 import android.content.Context;
-import android.media.FaceDetector;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.util.Log;
@@ -18,8 +15,6 @@ import android.util.Log;
 import vml.com.vm.blend.VMBOLoader;
 import vml.com.vm.blend.VMBOModel;
 import vml.com.vm.utils.*;
-
-//@SuppressLint("UseSparseArrays")
 
 /**
  * Class VMAvatar is the main class for managing, animating and rendering a virtual avatar.
@@ -31,31 +26,13 @@ import vml.com.vm.utils.*;
  * <li> Eyes: left and right eyes
  * </ul>
  * <p>
- * This parts form a hierarchy of transforms in which the a level transform affects the levels under it but not its parent.
- * Each part has its own transform that can be directly controlled and modified.
- * This transform consists on a relative translation and rotation with respect to their parents coordinate frame. 
- * Translation are mainly used for positioning the objects (models are assumed to be centered at the origin). 
- * This way, scene rotation/ translation provides a means for navigating the scene.
- * The Head rotation controls the orientation of the avatar head.
- * The Eyes rotation control the viewing direction of the avatar.
+ * The core parts of the avatar are the Face, VMBOModel (VML Blendshape Object Model)
  * <p>
- * The core parts of the avatar are the Face, mouth VMBOModel (VML Blendshape Object Model)
+ * Face models are composed by a neutral face and a set of Blendshapes which control its deformation.
  * <p>
- * Face and mouth models are composed by a neutral face and a set of Blendshapes which control its deformation.
+ * A FacePose is a set of blendshape weights creating a facial expression.
  * <p>
- * A FacePose is a set of blendshape weights for the mouth and the face creating a facial expression.
- * The VMAvatar contains 2 lists of expressions:
- * <p>
- * <ul>
- * <li> emotions: the list of facial expressions, mainly for whole face expressions
- * <li> visemes: additional list of expressions but mainly for storing visemes 
- * (facial expressions corresponding to sound articulations)
- * </ul>
- * <p>
- * The Avatar class also provides a key frame animation engine. This engine can be setup manually by specifying KeyFrames or
- * it can play existing animations contained in the animations list.
- * <p>
- * The VMAvatar provides also with procedural idle animation consiting in randomized blinking and head motion.
+ * The VMAvatar provides also with procedural idle animation consisting in randomized blinking.
  *
  * 	 
  * @author Roger Blanco i Ribera, Sunjin Jung
@@ -72,7 +49,7 @@ public class VMAvatar
 	public String name="nobody"; 
 	/** Head object */
 	public AvatarHead mHead;
-	
+
 	/** List of emotions
 	 *  @see FacePose */
 	private Map<String,FacePose> emotions   = new LinkedHashMap <String,FacePose>();
@@ -83,10 +60,10 @@ public class VMAvatar
 	 * @see KeyFrame 
 	 * @see KeyFramedAnimation */
 	private Map<String,List<KeyFrame> > animations    =new LinkedHashMap <String,List<KeyFrame> >();
-		
+
 	/** index of blendshapes affecting mouth region*/
-	public int[] mouthRegionBlends;	
-	
+	public int[] mouthRegionBlends;
+
 	/**	index of blendshape for left eye blink*/	
 	private int blinkLID;
 	/**	index of blendshape for right eye blink*/
@@ -152,10 +129,7 @@ public class VMAvatar
 										String eyeBobFile,	 String eyeMatFile)
 	{	
 		mContext=context;
-		
 		blinkLID=0; blinkRID=0;
-		////////////////////////////////////////////////////////////////////////////////
-		//Model
 		 try 
 		 {
 			 mHead= new AvatarHead( faceBobFile, faceBobMatFile, mouthBobFile, mouthMatFile, eyeBobFile, eyeMatFile);
@@ -168,20 +142,15 @@ public class VMAvatar
 		}
 	}
 
-	///////////////////////////////////////////////////////////////////////
-
 	/**
 	 *
 	 * @param context
-	 * New version not considering mouth model
+	 * Not considering mouth model
 	 */
 	public VMAvatar(Context context, String faceBobFile,  String faceBobMatFile, String eyeBobFile,	 String eyeMatFile)
 	{
 		mContext=context;
-
 		blinkLID=0; blinkRID=0;
-		////////////////////////////////////////////////////////////////////////////////
-		//Model
 		try
 		{
 			mHead= new AvatarHead(faceBobFile, faceBobMatFile,  eyeBobFile,	 eyeMatFile);
@@ -320,7 +289,6 @@ public class VMAvatar
 	public void stopAnimation()
 	{		
 		animator.animEngine.stop();
-		//doBlinking(true);
 	}
 	
 	/**
@@ -355,7 +323,7 @@ public class VMAvatar
 
 	/**
 	 * enables/disables the procedural headMotion
-	 * @param doHead enable if true
+	 * @param enable enable if true
 	 */
 	public void enableHeadMotion(boolean enable)
 	{
@@ -387,16 +355,7 @@ public class VMAvatar
 	{
 		animator.setHeadMotionSpeed(pitch, yaw, roll);	
 	}
-	
-	/**
-	 * Sets the avatar eye behaviour. 
-	 * It has 2 possible behaviours
-	 * follow user: the avatar keeps looking at the user independently of its head orientation
-	 * looking around: the avatar looks around in the direction of its head orientation
-	 * @param follow behaviour choice (boolean)
-	 */
-	public void setFollowEyes(boolean follow){ mHead.followEyes=follow;}
-	
+
 	/**
 	 * Sets the position of each eye with respect to the head coordinate frame.
 	 * Mainly for loading/ setup purposes
@@ -423,26 +382,13 @@ public class VMAvatar
 	 * Sets the orientation direction of the head
 	 * front is 0,0,0
 	 * 
-	 * @param eyeRot float[] 3d roation vector rx,ry,rz
+	 * @param headRot float[] 3d roation vector rx,ry,rz
 	 */	
 	public void setHeadRotation(float[] headRot)
 	{
 		mHead.setRotation(headRot);
 	}
-	
-	/**
-	 * Add a viseme expression to the existing viseme list
-	 * 
-	 * @param visemeName viseme Name (ex. represented phoneme : "a", "eh" 
-	 * @param faceW associated face weight vector
-	 * @param mouthW: associated mouth weight vector
-	 */
-	public void addViseme(String visemeName, float[] faceW, float[] mouthW)
-	
-	{		
-		visemes.put(visemeName, new FacePose(faceW, mouthW));
-	}
-	
+
 	/**
 	 * Modifies the current weights of the avatar blendshapes to the viseme Expression.
 	 * The emotion has to exist within the VMAvatar.visemes list
@@ -503,18 +449,7 @@ public class VMAvatar
 		}
 		this.doMouthLinks();
 	}
-		
-	/**
-	 * Adds a facial expression to the existing emotions list
-	 * @param emotion name of t
-	 * @param faceW associated face weight vector
-	 * @param mouthW  associated mouth weight vector
-	 */
-	public void addEmotion(String emotion, float[] faceW, float[] mouthW)
-	{		
-		emotions.put(emotion, new FacePose(faceW, mouthW));
-	}
-	
+
 	/**
 	 * sets the current blendshape weights to the desired emotion.
 	 * the emotion has to exist within the VMAvatar.emotions list
@@ -532,7 +467,6 @@ public class VMAvatar
 		{
 		    // No such key so vacation time...
 		}
-		
 	}
 	
 	/**
@@ -617,12 +551,12 @@ public class VMAvatar
 	}
 	
 	/**
-	 *Attaches the given model to the Extra Models group from the specified file in the SD card
+	 *Attaches the given model to the Extra Models group from the specified file
 	 *That model will only undergo global scene transforms and will not be subject 
 	 *to the heads orientation	 *
 	 * 
-	 * @param mod			bob model file
-	 * @param mat			material file
+	 * @param modfile			bob model file
+	 * @param matfile			material file
 	 * @throws IOException loading file problem 
 	 */
 	public void addExtraModel(String modfile, String matfile) throws IOException
@@ -646,45 +580,13 @@ public class VMAvatar
 			//e.printStackTrace();
 		}
 	}
-	
-	/**
-	 *Attaches the given model to the Extra Models group from the specified file in the assets folder
-	 *That model will only undergo global scene transforms and will not be subject
-	 *to the heads orientation	 *
-	 *
-	 * @param mod			bob model file
-	 * @param mat			material file
-	 * @throws IOException loading file problem
-	 */
 
-	public void addAssetExtraModel(String modfile, String matfile) throws IOException
-	{
-		try
-		{
-			extraModels.add(VMBOLoader.loadModelAsset(mContext,modfile));
-
-			if(matfile==""|| matfile=="default"||matfile=="Default")
-			{
-				extraMaterials.add(new VMMaterial());
-			}
-			else
-			{
-				extraMaterials.add(VMBOLoader.loadMaterialsAsset(mContext,matfile));
-			}
-
-		} catch (IOException e)
-		{
-			Log.e(TAG,"Error: Could not add "+modfile+" to head");
-			//e.printStackTrace();
-		}
-	}
-	
 	/**
 	 *Attaches the given model to the Head Models group from the specified file in the SD card.
 	 *The model will be subject to head transformations (ie. it will follow the head)
 	 * 
-	 * @param mod			bob model file
-	 * @param mat			material file
+	 * @param modfile			bob model file
+	 * @param matfile			material file
 	 * @throws IOException  Loading problem
 	 */
 	public void addExtraModelToHead(String modfile, String matfile) throws IOException
@@ -706,35 +608,7 @@ public class VMAvatar
 			//e.printStackTrace();
 		}
 	}
-	
-	/**
-	 *Attaches the given model to the Head Models group from the specified file in assets folder.
-	 *The model will be subject to head transformations (ie. it will follow the head)
-	 *
-	 * @param mod			bob model file
-	 * @param mat			material file
-	 * @throws IOException  Loading problem
-	 */
-	public void addAssetExtraModelToHead(String modfile, String matfile) throws IOException
-	{
-		try
-		{
-			if(matfile==""|| matfile=="default"||matfile=="Default")
-			{
-				mHead.addExtraModel(VMBOLoader.loadModel(mContext,modfile), new VMMaterial());
-			}
-			else
-			{
-				mHead.addExtraModel(VMBOLoader.loadModel(mContext,modfile),VMBOLoader.loadMaterialsAsset(mContext,matfile));
-			}
 
-		} catch (IOException e)
-		{
-			Log.e(TAG,"Error: Could not add "+modfile+" to head");
-			//e.printStackTrace();
-		}
-	}
-	
 	/**
 	 * Loads the necessary textures for each material.
 	 * needs to be called before any Render call.
@@ -743,9 +617,6 @@ public class VMAvatar
 	 */
 	public void loadTextures()
 	{
-		//Shader
-		//Log.i(TAG,"loadTex1");
-		
 		final String vertexShader = VMShaderUtil.readShaderFromRawResource(mContext, R.raw.colormap_vert);   		
  		final String fragmentShader = VMShaderUtil.readShaderFromRawResource(mContext, R.raw.colormap_frag);
  				
@@ -758,10 +629,6 @@ public class VMAvatar
 		{
 			throw new RuntimeException("Error compiling the shader programs");
 		}
-		
-		Log.i(TAG,"loadTex2");
-
-		
 
 		mHead.loadTextures();
 
@@ -769,10 +636,6 @@ public class VMAvatar
 		{	
 			if (extraMaterials.get(i).textureID == -1)	extraMaterials.get(i).loadTexture();				
 		}
-		
-		
-		//Log.i(TAG,"LoadTex2");
-			
 	}
 
 	/**
@@ -892,9 +755,7 @@ public class VMAvatar
 			}
 			else				
 				GLES20.glUniform1i(miTexturedHandle, 0);
-			
-			
-			
+
 			GLES20.glDrawElements(GLES20.GL_TRIANGLES,extraModels.get(i).mIndexBuffer.capacity(), GLES20.GL_UNSIGNED_SHORT, extraModels.get(i).mIndexBuffer);		VMShaderUtil.checkGlError("glDrawElements");
 		}
 	}
@@ -1045,7 +906,7 @@ public class VMAvatar
 		/**
 		 *Set the translation of the head with respect to the world coordinate frame 
 		 * 
-		 * @param eyeRot float[] 3D orientation vector for the eyes rx,ry,rz
+		 * @param trans float[] 3D orientation vector for the eyes rx,ry,rz
 		 * 
 		 */
 		public void setTranslation(float[] trans)
@@ -1245,9 +1106,7 @@ public class VMAvatar
 				}
 				else				
 					GLES20.glUniform1i(miTexturedHandle, 0);
-				
-				
-				
+
 				GLES20.glDrawElements(GLES20.GL_TRIANGLES,extraHeadModels.get(i).mIndexBuffer.capacity(), GLES20.GL_UNSIGNED_SHORT, extraHeadModels.get(i).mIndexBuffer);		VMShaderUtil.checkGlError("glDrawElements");
 			}
 		}
@@ -1263,7 +1122,6 @@ public class VMAvatar
 			Matrix.rotateM(MVP, 0, rotationOffset[1]+rotation[1], 0, 1, 0);
 			Matrix.rotateM(MVP, 0, rotationOffset[2]+rotation[2], 0, 0, 1);
 	        //Matrix.scaleM(MVP,0, 0.1f, 0.1f, 0.1f);
-			//Log.i("HEADRot","rot "+rotation[0]+" "+rotation[1]+" "+rotation[2]);
 	        
 			//bind matrices
 	        Matrix.invertM(MVP_inv, 0, MVP, 0);	        
@@ -1299,14 +1157,13 @@ public class VMAvatar
 	/**
 	 * Class Avatar Eye
 	 *
-	 * @author Roger Blanco i Ribera
+	 * @author Roger Blanco i Ribera, Sunjin Jung
 	 *
 	 */
 	class AvatarEye
 	{
 		private VMBOModel eyeModel;
 		private VMMaterial  eyeMaterial;
-		
 		
 		private float[] translation_left= {0.0f,0.0f,0.0f};
 		private float[] translation_right= {0.0f,0.0f,0.0f};
@@ -1548,9 +1405,7 @@ public class VMAvatar
 		@Override
 		public void run() 
 		{
-			
 			//Canvas canvas;
-			//Log.d(TAG, "Starting game loop1");
 			running=true;
 			
 			long timeline;
@@ -1561,37 +1416,19 @@ public class VMAvatar
 	
 			sleepTime = 0;
 			
-			
 			blinkEngine.start();
 			
 			timeline=0;
 			while (running) 
 			{
-				//sfps.logFrame("ANIMATOR");
-				
 				beginTime = System.currentTimeMillis();
 				framesSkipped = 0;	// resetting the frames skipped
 				
-				
 				timeline+=FRAME_PERIOD;
-				
-//				if(headMotion)
-//				{
-//					float nx=(float)VMNoise.noise(timeline/headMotionSpeeds[0], 0);
-//					float ny=(float)VMNoise.noise(timeline/headMotionSpeeds[1], 1);
-//					float nz=(float)VMNoise.noise(timeline/headMotionSpeeds[2], 2);
-//
-//				//Log.i("NOISE","timeline "+ timeline+"      n: "+10*nx);
-//
-//					mHead.rotationOffset[0]=headMotionMultiplier[0]*nx;
-//					mHead.rotationOffset[1]=headMotionMultiplier[1]*ny;
-//					mHead.rotationOffset[2]=headMotionMultiplier[2]*nz;
-//				}
 
 				animEngine.update(FRAME_PERIOD);
 				blinkEngine.update(FRAME_PERIOD);
-				
-				
+
 				timeDiff = System.currentTimeMillis() - beginTime;
 				
 				// calculate sleep time
@@ -1619,7 +1456,7 @@ public class VMAvatar
 		 * Class Blinker
 		 * creates randomized blinking for the avatar
 		 * 
-		 * @author Roger Blanco i Ribera
+		 * @author Roger Blanco i Ribera, Sunjin Jung
 		 *
 		 */
 		class Blinker
@@ -1660,7 +1497,6 @@ public class VMAvatar
 				{	
 					if(timeToNextBlink<=0)
 					{
-						//if(timeline==0)
 						if(timeline==0)
 						{
 							startWeight[0]=mHead.faceModel.BSWeights[blinkLID];
@@ -1684,8 +1520,6 @@ public class VMAvatar
 							mHead.faceModel.BSWeights[blinkLID] = weight + (1 - weight) * startWeight[0];
 							mHead.faceModel.BSWeights[blinkRID] = weight + (1 - weight) * startWeight[1];
 
-							//Log.i("Animator","                  w:"+mHead.faceModel.BSWeights[blinkLID] );
-
 							if (timeline >= blinkTiming[currentIdx + 1] && currentIdx != blinkTiming.length - 2) {
 								currentIdx++;
 							}
@@ -1694,17 +1528,11 @@ public class VMAvatar
 								mHead.faceModel.BSWeights[blinkLID] = startWeight[0];
 								mHead.faceModel.BSWeights[blinkRID] = startWeight[1];
 
-
 								timeToNextBlink = 4800 * 2 / 3 + (int) (Math.random() * 1000 - 500);
-								//timeToNextBlink=200 + (int)(Math.random()*5000 );
-								//int step = (100+(int)Math.random()*50)/2;
 
 								//restart
 								currentIdx = 0;
 								timeline = 0;
-								//							blinkTiming[1]=step;
-								//							blinkTiming[2]=step+50;
-								//							blinkTiming[3]=2*step+50;
 							}
 						}
 					}
@@ -1788,8 +1616,6 @@ public class VMAvatar
 				Collections.sort(keyframes, new KeyFrameComparator() ); //sort with respect to time			
 				if(lastFrame < key.time) lastFrame=key.time;
 			}
-			
-			
 		}
 		/**
 		 * Starts the animation from the beginning
@@ -1856,16 +1682,6 @@ public class VMAvatar
 				float weight= (float)(audioTiming - keyframes.get(currentIdx).time)/(float)( keyframes.get(currentIdx+1).time- keyframes.get(currentIdx).time);
 				facePose = smoothStep(  keyframes.get(currentIdx).pose, keyframes.get(currentIdx+1).pose, weight );
 				setFacePose(facePose);
-
-				//run_speech=false;
-				//doBlinking(true);
-
-				/** Play from start to end */
-				//timeline += dt;
-				//if(dt > xmlTimeStep){	currentIdx = currentIdx + (int)(dt/xmlTimeStep);	}
-				//if(timeline>=lastFrame) { run_speech=false; return; }
-				//if(timeline>=keyframes.get(currentIdx+2).time && (currentIdx+1)!=keyframes.size() ) { currentIdx++; }
-				//else if(currentIdx == -1) { currentIdx++; }
 			}
 
 			if(run_blend)
@@ -1897,7 +1713,7 @@ public class VMAvatar
 		{
 			//FacePose interPose= new FacePose(nextPose.faceWeights,nextPose.mouthWeights);
 			FacePose interPose= new FacePose(nextPose.faceWeights);
-			
+
 			for(int i=0; i<nextPose.faceWeights.length; i++)
 			{
 				interPose.faceWeights[i]=weight*interPose.faceWeights[i]+(1-weight)*curPose.faceWeights[i];
@@ -1915,7 +1731,6 @@ public class VMAvatar
 			float[] weights = new float[mHead.faceModel.BSWeights.length];
 			for(int i=0; i<weights.length; i++) weights[i] = allWeights;
 
-			//FacePose interPose= new FacePose(nextPose.faceWeights,nextPose.mouthWeights);
 			FacePose interPose= new FacePose(weights);
 
 			if(curPose != null)
@@ -1923,18 +1738,7 @@ public class VMAvatar
 				{
 					interPose.faceWeights[i]=weight*interPose.faceWeights[i]+(1-weight)*curPose.faceWeights[i];
 				}
-//			for(int i=0; i<nextPose.mouthWeights.length; i++)
-//			{
-//				interPose.mouthWeights[i]=weight*interPose.mouthWeights[i]+(1-weight)*curPose.mouthWeights[i];
-//			}
-
 			return interPose;
 		}
 	}
-
-	}
-
-
-
-
-
+}

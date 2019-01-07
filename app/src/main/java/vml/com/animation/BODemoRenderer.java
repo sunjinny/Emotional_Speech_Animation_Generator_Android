@@ -4,13 +4,9 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -59,29 +55,9 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
     public BODemoRenderer(Context context)
     {
 		fps= new FPSCounter();
-
 		mContext = context;
 
-
-		String root = Environment.getExternalStorageDirectory().getAbsolutePath();
-		//mAvatar=VMAvatarLoader.loadAvatar(context, root+"/VML_DEMO/Models/Animation/Girl/Girl.xml");
 		mAvatar=VMAvatarLoader.loadAvatar(context, "Girl.xml");
-
-
-
-		//file:///android_asset/Bonnie.xml
-
-//		PackageManager m = context.getPackageManager();
-//		String s = context.getPackageName();
-//		try {
-//			PackageInfo p = m.getPackageInfo(s, 0);
-//			s = p.applicationInfo.dataDir;
-//		} catch (PackageManager.NameNotFoundException e) {
-//			Log.w("yourtag", "Error Package name not found ", e);
-//		}
-//		mAvatar=VMAvatarLoader.loadAvatar(context, s+"/model/Animation/Bonnie/Bonnie.xml");
-
-		//mAvatar=VMAvatarLoader.loadAvatar(context, Environment.getExternalStorageDirectory().getAbsolutePath()+ getString(R.string.application_root);"/../../../../main/model/Animation/Bonnie/Bonnie.xml");
 
 		mAvatar.initRenderScript();
 
@@ -100,20 +76,12 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
 							  {
 								   // code runs in a UI(main) thread
 								   String[] keys= mAvatar.getAnimationList();
-								   // Selection of the spinner
-								   Spinner spinner = (Spinner) ((AppCompatActivity)mContext).findViewById(R.id.spinner);
-								   // Application of the Array to the Spinner
-								   ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(mContext,android.R.layout.simple_spinner_item,keys);
-								   spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item); // The drop down view
-								   spinner.setAdapter(spinnerArrayAdapter);
 							   }
 						  });
 	                  } catch (final Exception ex){  /*TODO del with exceptions*/  }
 	           }
 	    }.start();
     }
-
-    boolean animating=false;
 
 	@Override
 	public void onDrawFrame(GL10 gl)
@@ -135,13 +103,6 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
 		Matrix.rotateM(mmatModel, 0, worldRotation[0], 1.0f, 0, 0);
 		Matrix.rotateM(mmatModel, 0, worldRotation[1], 0, 1.0f, 0);
 		Matrix.scaleM(mmatModel, 0, mScale,mScale,mScale);//0.2f*(mScale-1.0f), 0.2f*(mScale-1.0f),  0.2f*(mScale-1.0f));
-
-		//limit ui rotations
-//        if(mAngleY>30.0f) mAngleY=30.0f;
-//        if(mAngleY<-30.0f) mAngleY=-30.0f;
-//
-//        if(mAngleX>30.0f) mAngleX=30.0f;
-//        if(mAngleX<-30.0f) mAngleX=-30.0f;
 
         if(controlHead)
 			mAvatar.setHeadRotation(new float[]{mAngleY, mAngleX,0.0f});

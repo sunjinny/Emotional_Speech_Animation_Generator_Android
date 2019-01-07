@@ -9,7 +9,6 @@ import android.support.v4.view.MotionEventCompat;
 import android.view.LayoutInflater;
 import android.app.Fragment;
 import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -29,21 +28,9 @@ public class AvatarFragment extends Fragment
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        //TEST: using additional view
-        //View view = inflater.inflate(R.layout.animation, container, false);
-        //mGLView = new VMSurfaceView(view.getContext());
-        //return view;
-
-        //TEST: simple Renderer
-        //mGLView = new VMSurfaceView(this.getActivity());
-        //mGLView.setEGLContextClientVersion(2);
-        //mGLView.setRenderer(new VMRenderer());
-        //return mGLView;
-
         mGLView = new VMSurfaceView(this.getActivity());
         mGLView.setEGLContextClientVersion(2);
         mGLView.setRenderer(new BODemoRenderer(this.getActivity()));
-        //mGLView.setRenderer(new VMRenderer());
         return mGLView;
     }
 }

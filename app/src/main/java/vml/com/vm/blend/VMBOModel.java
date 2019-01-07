@@ -2,20 +2,17 @@ package vml.com.vm.blend;
 
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
-
 import android.content.Context;
 import android.renderscript.Allocation;
 import android.renderscript.Element;
 import android.renderscript.RenderScript;
-//import android.util.Log;
 
 import vml.com.animation.R;
-//import com.vml.blend.ScriptC_blend;
 
 /**
  * Blendshape Object Core class
  * 
- * @author Roger Blanco i Ribera
+ * @author Roger Blanco i Ribera, Sunjin Jung
  *
  */
 public class VMBOModel
