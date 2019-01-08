@@ -21,27 +21,25 @@ It provides a fragment view for animating avatar, which can be used in other act
 2. Include the `.jar` file in your Android Studio project.
 3. Make a new fragment(Containers) in the origin layout `.xml` file and set the name as a path of `AvatarFragment`.
 4. In your MainActivity, follow the steps below.
-  1) Get the fragment manager for the AvatarFragment.  
+   We provide `MainActivity.java` for testing and showing how to use in the activity.  
+- Get the fragment manager for the AvatarFragment.  
   ```
   AvatarFragment fragment = (AvatarFragment) getFragmentManager().findFragmentById()
   ```
-  2) Create `AvatarAnimation` instance with the fragment.  
+- Create `AvatarAnimation` instance with the fragment.  
   ```
   AvatarAnimation avatarAnimation = new AvatarAnimation(fragment);
   ```
-  3) If a new animation data `.xml` is given by the server, set the animation by `InputStream` data.  
+- If a new animation data `.xml` is given by the server, set the animation by `InputStream` data.  
   ```
   avatarAnimation.setAnimation()
   ```
-  4) Play a new audio corresponding to the animation data.  
-  5) Update the animation by getting the current audio timing.  
+- Play a new audio corresponding to the animation data.  
+- Update the animation by getting the current audio timing.  
   ```
   avatarAnimation.updateAnimation(MediaPlayer.getCurrentPosition())
   ```
-  6) Finally, when the audio ends, play idle motion.  
+- Finally, when the audio ends, play idle motion.  
   ```
   avatarAnimation.playIdleMotion();
   ```
-  
-  
-#### We provide `MainActivity.java` for testing and showing how to use in the activity.
