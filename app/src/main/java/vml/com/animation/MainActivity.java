@@ -11,10 +11,10 @@ import android.widget.Button;
 import java.io.IOException;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity { //for test
     //TODO: Create AvatarAnimation instance
     private AvatarAnimation avatarAnimation;
-    private MediaPlayer mediaPlayer;
+    private MediaPlayer mediaPlayer; //for test
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,28 +24,29 @@ public class MainActivity extends AppCompatActivity {
         //TODO: Get Fragment Manager
         AvatarFragment fragment = (AvatarFragment) getFragmentManager().findFragmentById(R.id.fragment);
         avatarAnimation = new AvatarAnimation(fragment);
-        mediaPlayer = MediaPlayer.create(this, R.raw.joy);
 
-        Button button = (Button) findViewById(R.id.button);
+        mediaPlayer = MediaPlayer.create(this, R.raw.joy); //for test
+
+        Button button = (Button) findViewById(R.id.button); //for test
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AssetManager assetManager = getResources().getAssets();
+                AssetManager assetManager = getResources().getAssets(); //for test
                 try{
-                    //TODO: setAnimation with the InputStream data (.xml file from server output)
+                    //TODO: setAnimation with the animation_data from the server (to InputStream)
                     avatarAnimation.setAnimation(assetManager.open("joy_anim.xml"));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
                 mediaPlayer.start();
-                while(true){
+                while(true){ //This is just for testing the audio with animation.
                     if(!mediaPlayer.isPlaying()) {
                         //TODO: PlayIdleMotion when the audio ends
                         avatarAnimation.playIdleMotion();
                         break;
                     }
-                    //TODO: Audio Play and get the timing, pass it to the parameter
+                    //TODO: Update animation by getting the current audio timing
                     avatarAnimation.updateAnimation(mediaPlayer.getCurrentPosition());
                 }
             }
