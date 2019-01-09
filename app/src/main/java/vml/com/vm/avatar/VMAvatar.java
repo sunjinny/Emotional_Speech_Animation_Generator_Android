@@ -962,7 +962,7 @@ public class VMAvatar
 			extraHeadModels.add(mod);
 			extraHeadMaterials.add(mat);
 			
-			Log.i(TAG,"added material succesfully"+ extraHeadModels.size()+" "+extraHeadMaterials.size());
+			//Log.i(TAG,"added material succesfully"+ extraHeadModels.size()+" "+extraHeadMaterials.size());
 		}
 		/**
 		 * loads the textures associated with the head group model

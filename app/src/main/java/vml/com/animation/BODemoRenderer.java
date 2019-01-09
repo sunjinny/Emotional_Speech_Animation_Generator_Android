@@ -109,13 +109,13 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
 
         mAvatar.Render(mmatModel, mmatView, mmatProjection);
 
-        fps.logFrame("FPS");
+        //fps.logFrame("FPS");
 	}
 
 	@Override
 	public void onSurfaceChanged(GL10 gl, int width, int height)
 	{
-		Log.i(TAG,"onSurfaceChanged");
+		//Log.i(TAG,"onSurfaceChanged");
 		GLES20.glViewport(0, 0, width, height);
 		float ratio = (float) width / height;
 		Matrix.perspectiveM(mmatProjection, 0, 60.0f, ratio, 1, 100);

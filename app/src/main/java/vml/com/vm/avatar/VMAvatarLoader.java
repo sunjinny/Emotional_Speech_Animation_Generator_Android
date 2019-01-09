@@ -135,7 +135,7 @@ public class VMAvatarLoader
 
 			//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			//Animations
-			Log.i("AniXML","animations");
+			//Log.i("AniXML","animations");
 			List<String> animFiles= new ArrayList<String>();
 
 			NodeList animListNodes=avatarEl.getElementsByTagName("animationList");
@@ -144,7 +144,7 @@ public class VMAvatarLoader
 				Element animationNodes= (Element) animListNodes.item(0);
 				if(animationNodes.hasChildNodes())
 				{
-					Log.i("AniXML","anim chld");
+					//Log.i("AniXML","anim chld");
 					NodeList animList = animationNodes.getElementsByTagName("animation");
 					for(int i=0; i<animList.getLength(); i++)
 					{
@@ -152,7 +152,7 @@ public class VMAvatarLoader
 						String animName= curEl.getAttribute("filename");
 
 						animFiles.add(animName);
-						Log.i("AniXML",animName);
+						//Log.i("AniXML",animName);
 					}
 				}
 			}

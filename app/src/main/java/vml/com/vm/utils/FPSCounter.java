@@ -28,7 +28,7 @@ public class FPSCounter
 	    frames++;
 	    if(System.nanoTime() - startTime >= 3e9) //for 3
 	    {
-	        Log.d(TAG, "fps: " + (float)frames/3.0f);
+	        //Log.d(TAG, "fps: " + (float)frames/3.0f);
 	        frames = 0;
 	        startTime = System.nanoTime();
 	    }

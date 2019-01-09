@@ -254,7 +254,7 @@ public class VMBOLoader
 				reader.read(curStr);				
 				model.BSNames[i]=new String(curStr,"UTF_8");
 				
-				Log.i(TAG,"blendshape "+i+" : "+curStrSize+"  "+model.BSNames[i]);
+				//Log.i(TAG,"blendshape "+i+" : "+curStrSize+"  "+model.BSNames[i]);
 			}
 
 			//Parsing Body
