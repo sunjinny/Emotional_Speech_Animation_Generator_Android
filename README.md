@@ -15,11 +15,30 @@ It provides a `vml-animation.aar` file for animating avatar, which can be used w
 
 
 ## Getting started
-1. Clone this repository.
-2. Include the `vml-animation.aar` file in your android project.
-3. Create a new fragment(Containers) in the `.xml` layout and connect it with `vml.com.animation.AvatarFragment`.
-4. In Activity, follow these steps.  
-   We provide `MainActivity.java` for testing and showing how to use in the activity.  
+1. Clone this repository.  
+2. Include the `.aar` file in your android project.
+- Copy the `vml-animation.aar` file to the `app/libs` folder in the Project.  
+- In `build.gradle` file, add following codes.  
+
+```
+dependencies {
+    implementation(name: 'vml-animation', ext: 'aar')
+}  
+
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+```
+
+- Sync the project.  
+
+
+## Usage
+1. Create a new fragment(Containers) in the `.xml` layout and connect it with `vml.com.animation.AvatarFragment`.
+2. In Activity, follow these steps.  
+   (We provide `MainActivity.java` for testing and showing how to use in the activity.)  
 - Get the fragment manager of the AvatarFragment.  
 
   ```
@@ -40,7 +59,7 @@ It provides a `vml-animation.aar` file for animating avatar, which can be used w
   
 - Play a new audio corresponding to the animation.  
 
-- Update the animation by getting the current audio timing.  
+- While playing the audio, update the animation by getting the current audio timing.  
 
   ```
   avatarAnimation.updateAnimation(MediaPlayer.getCurrentPosition());
@@ -52,21 +71,3 @@ It provides a `vml-animation.aar` file for animating avatar, which can be used w
   avatarAnimation.playIdleMotion();
   ```
   
-## How to use AAR file
-1. Copy the `vml-animation.aar` file to the `app/libs` folder in the Project.  
-
-2. In `build.gradle` file, add following codes.  
-
-```
-dependencies {
-    implementation(name: 'vml-animation', ext: 'aar')
-}  
-
-repositories {
-    flatDir {
-        dirs 'libs'
-    }
-}
-```
-
-3. Sync the project.  
