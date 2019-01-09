@@ -1,7 +1,6 @@
 # Emotional Facial Animation Client (for Android)
 This is a part of Emotional Facial Animation module for Flagship project by [Visual Media Lab, KAIST](http://vml.kaist.ac.kr).  
-It provides a fragment view for animating avatar, which can be used in other activities.
-
+It provides a `vml-animation.aar` file for animating avatar, which can be used with a fragment view of other projects.
 
 ## Authors
  - Sunjin Jung (<sunjin225@kaist.ac.kr>)
@@ -16,10 +15,10 @@ It provides a fragment view for animating avatar, which can be used in other act
 
 
 ## Getting started
-1. Clone this repo first. 
-2. Include the `.jar` file in your Android Studio project.
-3. Make a new fragment(Containers) in your layout `.xml` file and set the name as a path of `AvatarFragment`.
-4. In your Activity, follow the steps below.  
+1. Clone this repository.
+2. Include the `vml-animation.aar` file in your android project.
+3. Create a new fragment(Containers) in the `.xml` layout and connect it with `vml.com.animation.AvatarFragment`.
+4. In Activity, follow these steps.  
    We provide `MainActivity.java` for testing and showing how to use in the activity.  
 - Get the fragment manager of the AvatarFragment.  
 
@@ -33,7 +32,7 @@ It provides a fragment view for animating avatar, which can be used in other act
   AvatarAnimation avatarAnimation = new AvatarAnimation(fragment);
   ```
   
-- If a new animation data `.xml` is given by the server, receive it as `InputStream` data and set the animation.  
+- If a new animation data `.xml` is given from the server, set the animation.  
 
   ```
   avatarAnimation.setAnimation(..);
@@ -53,3 +52,21 @@ It provides a fragment view for animating avatar, which can be used in other act
   avatarAnimation.playIdleMotion();
   ```
   
+## How to use AAR file
+1. Copy the `vml-animation.aar` file to the `app/libs` folder in the Project.  
+
+2. In `build.gradle` file, add following codes.  
+
+```
+dependencies {
+    implementation(name: 'vml-animation', ext: 'aar')
+}  
+
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+```
+
+3. Sync the project.  
