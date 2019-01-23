@@ -16,9 +16,10 @@ It provides a `vml-animation.aar` file for animating avatar, which can be used w
 
 
 ## Getting started
-1. Clone this repository.  
-2. Copy the `vml-animation.aar` file into the `app/libs` folder in your Android project.  
-3. In your `build.gradle` file, add following codes.
+- Clone this repository.  
+- Copy the `vml-animation.aar` file into the `app/libs` folder in your Android project.  
+- In your `build.gradle` file, add following codes.
+
 ```
 dependencies {
     implementation(name: 'vml-animation', ext: 'aar')
@@ -30,40 +31,40 @@ repositories {
     }
 }
 ```
-4. Sync the project.  
+- Sync the project.
 
 
 ## How to use the library
-1. Create a new fragment(Containers) in your `.xml` layout and connect it with `vml.com.animation.AvatarFragment`.
-2. In Activity, follow these steps.  
+- Create a new fragment(Containers) in your `.xml` layout and connect it with `vml.com.animation.AvatarFragment`.
+- In Activity, follow these steps.  
    (We provide `MainActivity.java` for testing and showing how to use in the activity.)  
-3. Get the fragment manager of the AvatarFragment.  
+- Get the fragment manager of the AvatarFragment.  
 
   ```
   AvatarFragment fragment = (AvatarFragment) getFragmentManager().findFragmentById(..);
   ```
   
-4. Create `AvatarAnimation` instance with the fragment.  
+- Create `AvatarAnimation` instance with the fragment.  
 
   ```
   AvatarAnimation avatarAnimation = new AvatarAnimation(fragment);
   ```
   
-5. If a new animation data `.xml` is given from the server, set the animation.  
+- If a new animation data `.xml` is given from the server, set the animation.  
 
   ```
   avatarAnimation.setAnimation(..);
   ```
   
-6. Play a new audio corresponding to the animation.  
+- Play a new audio corresponding to the animation.  
 
-7. While playing the audio, update the animation by getting the current audio timing.  
+- While playing the audio, update the animation by getting the current audio timing.  
 
   ```
   avatarAnimation.updateAnimation(MediaPlayer.getCurrentPosition());
   ```
   
-8. Finally, when the audio ends, play idle motion.  
+- Finally, when the audio ends, play idle motion.  
 
   ```
   avatarAnimation.playIdleMotion();
@@ -71,10 +72,10 @@ repositories {
   
   
 ## How to run the example codes
-1. In `app/build.gradle` file, follow the steps.
-2. Change `apply plugin: 'com.android.library'` to `apply plugin: 'com.android.application'`.
-3. Delete the comment for `applicationId "vml.com.animation"`.
-4. Delete the following codes.
+- In `app/build.gradle` file, follow the steps.
+- Change `apply plugin: 'com.android.library'` to `apply plugin: 'com.android.application'`.
+- Delete the comment for `applicationId "vml.com.animation"`.
+- Delete the following codes.
 
 ```
 libraryVariants.all { variant ->
@@ -86,4 +87,4 @@ libraryVariants.all { variant ->
 }
 ```
 
-5. Sync the project and run 'app'.
+- Sync the project and run 'app'.
