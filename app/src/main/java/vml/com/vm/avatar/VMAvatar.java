@@ -487,6 +487,9 @@ public class VMAvatar
 		{
 			mHead.faceModel.BSWeights = pose.faceWeights;
 		}
+		else
+			Log.e("xml","Different Size of Blendshape Weights");
+
 	}
 	
 	/**
@@ -801,33 +804,33 @@ public class VMAvatar
 	{
     	//apply the blendshapes to the neutral face
     	mHead.faceModel.applyBlendShapes();
-    	
+
     	//ensure the connected blendshapes between face and mouth
     	doMouthLinks();
     	//mHead.mouthModel.applyBlendShapes();
-    	
+
 		useShader();
-		
-		//bind global Attributes		
+
+		//bind global Attributes
 		//bind the light and eye positions
 		GLES20.glUniform3f(mfvLightPositionHandle,   mfvLightPosition[0], mfvLightPosition[1], mfvLightPosition[2]); VMShaderUtil.checkGlError("glUniform3f mfvLightPositionHandle");
 		GLES20.glUniform3f(mfvEyePositionHandle,mfvEyePosition[0], mfvEyePosition[1], mfvEyePosition[2]);			VMShaderUtil.checkGlError("glUniform3f mfvEyePositionHandle");
-		
+
 
         Matrix.multiplyMM(mmatModelView, 0, V, 0, M, 0);
         Matrix.multiplyMM(mmatViewProjection, 0, P, 0, mmatModelView, 0);
-        
+
         //bind matrices
-        Matrix.invertM(mmatViewProjection_inv, 0, mmatViewProjection, 0);	        
+        Matrix.invertM(mmatViewProjection_inv, 0, mmatViewProjection, 0);
         Matrix.transposeM(mmatViewProjection_inv_t, 0, mmatViewProjection_inv, 0);
-        
+
         // bind the transform matrices
         GLES20.glUniformMatrix4fv(mmatViewProjectionHandle, 1, false, mmatViewProjection, 0);							VMShaderUtil.checkGlError("glUniformMatrix4fv mmatViewProjectionHandle");
         GLES20.glUniformMatrix4fv(mmatViewProjectionInverseTransposeHandle, 1, false, mmatViewProjection_inv_t, 0);	VMShaderUtil.checkGlError("glUniformMatrix4fv mmatViewProjectionInverseTransposeHandle");
-		
+
         //renderExtraModels();
         mHead.render(mmatViewProjection);
-		
+
 	}
 	
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1122,21 +1125,21 @@ public class VMAvatar
 			Matrix.rotateM(MVP, 0, rotationOffset[1]+rotation[1], 0, 1, 0);
 			Matrix.rotateM(MVP, 0, rotationOffset[2]+rotation[2], 0, 0, 1);
 	        //Matrix.scaleM(MVP,0, 0.1f, 0.1f, 0.1f);
-	        
+
 			//bind matrices
-	        Matrix.invertM(MVP_inv, 0, MVP, 0);	        
+	        Matrix.invertM(MVP_inv, 0, MVP, 0);
 	        Matrix.transposeM(MVP_inv_t, 0, MVP_inv, 0);
-	        
+
 	        // bind the transform matrices
 	        GLES20.glUniformMatrix4fv(mmatViewProjectionHandle, 1, false, MVP, 0);							VMShaderUtil.checkGlError("glUniformMatrix4fv mmatViewProjectionHandle");
 	        GLES20.glUniformMatrix4fv(mmatViewProjectionInverseTransposeHandle, 1, false, MVP_inv_t, 0);	VMShaderUtil.checkGlError("glUniformMatrix4fv mmatViewProjectionInverseTransposeHandle");
 
 			//draw Face
 	        renderFace();
-	        
+
 	        //draw the mouth
 	        //renderMouth();
-	        
+
 	        //draw extraModels
 	        renderExtraModels();
 
@@ -1499,8 +1502,10 @@ public class VMAvatar
 					{
 						if(timeline==0)
 						{
-							startWeight[0]=mHead.faceModel.BSWeights[blinkLID];
-							startWeight[1]=mHead.faceModel.BSWeights[blinkRID];
+							startWeight[0]=0.0f;
+							startWeight[1]=0.0f;
+//							startWeight[0]=mHead.faceModel.BSWeights[blinkLID];
+//							startWeight[1]=mHead.faceModel.BSWeights[blinkRID];
 						}
 						timeline+=dt;
 
@@ -1730,14 +1735,14 @@ public class VMAvatar
 		{
 			float[] weights = new float[mHead.faceModel.BSWeights.length];
 			for(int i=0; i<weights.length; i++) weights[i] = allWeights;
-
 			FacePose interPose= new FacePose(weights);
 
-			if(curPose != null)
+			if((curPose != null) && ( curPose.faceWeights.length==mHead.faceModel.BSWeights.length))
+			{
 				for(int i=0; i<curPose.faceWeights.length; i++)
-				{
 					interPose.faceWeights[i]=weight*interPose.faceWeights[i]+(1-weight)*curPose.faceWeights[i];
-				}
+			}
+
 			return interPose;
 		}
 	}

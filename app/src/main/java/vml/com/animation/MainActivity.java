@@ -25,7 +25,12 @@ public class MainActivity extends AppCompatActivity { //for test
         AvatarFragment fragment = (AvatarFragment) getFragmentManager().findFragmentById(R.id.fragment);
         avatarAnimation = new AvatarAnimation(fragment);
 
-        mediaPlayer = MediaPlayer.create(this, R.raw.joy); //for test
+        mediaPlayer = MediaPlayer.create(this, R.raw.surprise); //for test
+
+
+
+
+
 
         Button button = (Button) findViewById(R.id.button); //for test
         button.setOnClickListener(new View.OnClickListener() {
@@ -34,7 +39,7 @@ public class MainActivity extends AppCompatActivity { //for test
                 AssetManager assetManager = getResources().getAssets(); //for test
                 try{
                     //TODO: setAnimation with the animation_data from the server (to InputStream)
-                    avatarAnimation.setAnimation(assetManager.open("joy_anim.xml"));
+                    avatarAnimation.setAnimation(assetManager.open("EmoSpeech_surprise_1.0.xml"));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -51,6 +56,41 @@ public class MainActivity extends AppCompatActivity { //for test
                 }
             }
         });
+
+
+
+
+
+
+        Button button2 = (Button) findViewById(R.id.button2); //for test
+        button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AssetManager assetManager = getResources().getAssets(); //for test
+                try{
+                    //TODO: setAnimation with the animation_data from the server (to InputStream)
+                    avatarAnimation.setAnimation(assetManager.open("ManAnimation/surprise.xml"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                mediaPlayer.start();
+                while(true){ //This is just for testing the audio with animation.
+                    if(!mediaPlayer.isPlaying()) {
+                        //TODO: PlayIdleMotion when the audio ends
+                        avatarAnimation.playIdleMotion();
+                        break;
+                    }
+                    //TODO: Update animation by getting the current audio timing
+                    avatarAnimation.updateAnimation(mediaPlayer.getCurrentPosition());
+                }
+            }
+        });
+
+
+
+
+
     }
 
 

@@ -41,6 +41,8 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
     private Context mContext;
 
     VMAvatar mAvatar;
+	VMAvatar mAvatarMan;
+	public boolean isMan = false;
 
     public String currentEmotion="Neutral";
     public String currentViseme ="Neutral";
@@ -58,10 +60,13 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
 		mContext = context;
 
 		mAvatar=VMAvatarLoader.loadAvatar(context, "Girl.xml");
+		mAvatarMan=VMAvatarLoader.loadAvatar(context, "Man.xml");
 
 		mAvatar.initRenderScript();
+		mAvatarMan.initRenderScript();
 
 		mAvatar.enableBlinking(true);
+		mAvatarMan.enableBlinking(true);
 		//mAvatar.enableHeadMotion(true);
 
 		new Thread() {
@@ -104,10 +109,15 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
 		Matrix.rotateM(mmatModel, 0, worldRotation[1], 0, 1.0f, 0);
 		Matrix.scaleM(mmatModel, 0, mScale,mScale,mScale);//0.2f*(mScale-1.0f), 0.2f*(mScale-1.0f),  0.2f*(mScale-1.0f));
 
-        if(controlHead)
-			mAvatar.setHeadRotation(new float[]{mAngleY, mAngleX,0.0f});
+        if(controlHead) {
+			mAvatar.setHeadRotation(new float[]{mAngleY, mAngleX, 0.0f});
+			mAvatarMan.setHeadRotation(new float[]{mAngleY, mAngleX, 0.0f});
+		}
 
-        mAvatar.Render(mmatModel, mmatView, mmatProjection);
+		if(isMan)
+			mAvatarMan.Render(mmatModel, mmatView, mmatProjection);
+		else
+			mAvatar.Render(mmatModel, mmatView, mmatProjection);
 
         //fps.logFrame("FPS");
 	}
@@ -130,6 +140,7 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
 		Matrix.setLookAtM(mmatView, 0, mfvEyePosition[0], mfvEyePosition[1], mfvEyePosition[2], 0f, 0f, 0f, 0f, 1.0f, 0.0f);
 
 		mAvatar.loadTextures(); //loads textures in OpenGL and sets up the shader
+		mAvatarMan.loadTextures(); //loads textures in OpenGL and sets up the shader
 	}
 
 }

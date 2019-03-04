@@ -14,6 +14,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import vml.com.vm.avatar.VMAvatar;
 import vml.com.vm.utils.FacePose;
 import vml.com.vm.utils.KeyFrame;
 
@@ -24,19 +25,21 @@ import vml.com.vm.utils.KeyFrame;
 public class AvatarAnimation {
     private AvatarFragment mFragment;
     private String animName;
+    private String gender;
+    private VMAvatar renderedAvatar;
 
     public AvatarAnimation(AvatarFragment fragment){
         mFragment = fragment;
     }
 
     public void playIdleMotion(){
-        mFragment.mGLView.mRenderer.mAvatar.setNeutralFace();
+        renderedAvatar.setNeutralFace();
     }
 
     public void updateAnimation(int time){
         //time in milliseconds
-        mFragment.mGLView.mRenderer.mAvatar.doBlinking(false);
-        mFragment.mGLView.mRenderer.mAvatar.updateAudioTiming(time);
+        renderedAvatar.doBlinking(false);
+        renderedAvatar.updateAudioTiming(time);
     }
 
     public void setAnimation(InputStream animation){
@@ -49,6 +52,19 @@ public class AvatarAnimation {
 
             Element animEl = doc.getDocumentElement();
             animName = element.getAttributes().getNamedItem("name").getNodeValue();
+
+            Element genderEl = (Element) animEl.getElementsByTagName("gender").item(0);
+            gender = genderEl.getAttribute("gender");
+
+            if(Integer.parseInt(gender) == 30001) {
+                mFragment.mGLView.mRenderer.isMan = true;
+                renderedAvatar = mFragment.mGLView.mRenderer.mAvatarMan;
+            }
+            else {
+                mFragment.mGLView.mRenderer.isMan = false;
+                renderedAvatar = mFragment.mGLView.mRenderer.mAvatar;
+            }
+
             List<KeyFrame> keys = new ArrayList<KeyFrame>();
 
             Element keyFrameNodes = (Element) animEl.getElementsByTagName("keyframeList").item(0);
@@ -74,7 +90,7 @@ public class AvatarAnimation {
                     keys.add(key);
                 }
             }
-            mFragment.mGLView.mRenderer.mAvatar.addAnimation(animName, keys);
+            renderedAvatar.addAnimation(animName, keys);
             animation.close();
         } catch (SAXException e) {
             e.printStackTrace();
@@ -85,7 +101,7 @@ public class AvatarAnimation {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        mFragment.mGLView.mRenderer.mAvatar.setAnimation(animName);
-        mFragment.mGLView.mRenderer.mAvatar.startAnimation();
+        renderedAvatar.setAnimation(animName);
+        renderedAvatar.startAnimation();
     }
 }
