@@ -44,7 +44,7 @@ public class VMAvatar
 {
 	Context mContext;
 	private static String TAG="VMAvatar";
-	
+
 	/** name of the Avatar. "Nobody" by default*/	
 	public String name="nobody"; 
 	/** Head object */
@@ -1013,14 +1013,14 @@ public class VMAvatar
 			VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_TexCoord0Handle");
 
 	        //bind material, textures
-			GLES20.glUniform4f(mfvAmbientHandle,faceMaterial.matrix[0], faceMaterial.matrix[1], faceMaterial.matrix[2],  faceMaterial.matrix[3]);		VMShaderUtil.checkGlError("glUniform4f mfvAmbientHandle");		
-			GLES20.glUniform4f(mfvDiffuseHandle,faceMaterial.matrix[4], faceMaterial.matrix[5], faceMaterial.matrix[6],  faceMaterial.matrix[7]);		VMShaderUtil.checkGlError("glUniform4f mfvDiffuseHandle");		
-			GLES20.glUniform4f(mfvSpecularHandle,faceMaterial.matrix[8], faceMaterial.matrix[9], faceMaterial.matrix[10],  faceMaterial.matrix[11]);	VMShaderUtil.checkGlError("glUniform4f mfvSpecularHandle");		
+			GLES20.glUniform4f(mfvAmbientHandle,faceMaterial.matrix[0], faceMaterial.matrix[1], faceMaterial.matrix[2],  faceMaterial.matrix[3]);		VMShaderUtil.checkGlError("glUniform4f mfvAmbientHandle");
+			GLES20.glUniform4f(mfvDiffuseHandle,faceMaterial.matrix[4], faceMaterial.matrix[5], faceMaterial.matrix[6],  faceMaterial.matrix[7]);		VMShaderUtil.checkGlError("glUniform4f mfvDiffuseHandle");
+			GLES20.glUniform4f(mfvSpecularHandle,faceMaterial.matrix[8], faceMaterial.matrix[9], faceMaterial.matrix[10],  faceMaterial.matrix[11]);	VMShaderUtil.checkGlError("glUniform4f mfvSpecularHandle");
 			GLES20.glUniform1f(mfSpecularPowerHandle, faceMaterial.matrix[12]);																			VMShaderUtil.checkGlError("glUniform1f mfSpecularPowerHandle");
-			
-				
+
+
 			// turn on the texture if there is one
-			if (faceMaterial.textureID != -1) 
+			if (faceMaterial.textureID != -1)
 			{
 				GLES20.glEnableVertexAttribArray(mrm_TexCoord0Handle);
 				GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
@@ -1031,7 +1031,6 @@ public class VMAvatar
 				GLES20.glUniform1i(miTexturedHandle, 0);
 			//draw models
 			GLES20.glDrawElements(GLES20.GL_TRIANGLES,faceModel.mIndexBuffer.capacity(), GLES20.GL_UNSIGNED_SHORT, faceModel.mIndexBuffer);		VMShaderUtil.checkGlError("glDrawElements");
-			
 		}
 		/**
 		 * Renders the Mouth model
@@ -1437,7 +1436,7 @@ public class VMAvatar
 				// calculate sleep time
 				sleepTime = (int)(FRAME_PERIOD - timeDiff);
 				
-				if (sleepTime > 0) 
+				if (sleepTime > 0)
 				{
 					// if sleepTime > 0 we're OK
 					try {

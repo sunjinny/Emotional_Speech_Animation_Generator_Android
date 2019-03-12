@@ -28,10 +28,6 @@ public class MainActivity extends AppCompatActivity { //for test
         mediaPlayer = MediaPlayer.create(this, R.raw.surprise); //for test
 
 
-
-
-
-
         Button button = (Button) findViewById(R.id.button); //for test
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,11 +53,6 @@ public class MainActivity extends AppCompatActivity { //for test
             }
         });
 
-
-
-
-
-
         Button button2 = (Button) findViewById(R.id.button2); //for test
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,10 +77,6 @@ public class MainActivity extends AppCompatActivity { //for test
                 }
             }
         });
-
-
-
-
 
     }
 
