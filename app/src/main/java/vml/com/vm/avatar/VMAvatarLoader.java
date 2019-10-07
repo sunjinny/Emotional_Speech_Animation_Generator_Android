@@ -46,6 +46,7 @@ public class VMAvatarLoader
 		{
 			String sAvatarName="";
 			String sfaceModel,sfaceMaterial;
+			String smouthModel,smouthMaterial;
 			String seyeModel,seyeMaterial;
 
 			InputStream is = assetManager.open(avatarFileName);
@@ -64,15 +65,19 @@ public class VMAvatarLoader
 			Element headNode = (Element) avatarEl.getElementsByTagName( "head" ).item(0);			
 			
 			Element faceNode = (Element) headNode.getElementsByTagName("face").item(0);
-			sfaceModel	 = faceNode.getAttributes().getNamedItem("model").getNodeValue();			
+			sfaceModel	 = faceNode.getAttributes().getNamedItem("model").getNodeValue();
 			sfaceMaterial= faceNode.getAttributes().getNamedItem("material").getNodeValue();
+
+            Element mouthNode = (Element) headNode.getElementsByTagName("mouth").item(0);
+            smouthModel	 = mouthNode.getAttributes().getNamedItem("model").getNodeValue();
+            smouthMaterial= mouthNode.getAttributes().getNamedItem("material").getNodeValue();
 
 			Element eyesNode = (Element) headNode.getElementsByTagName("eyes").item(0);
 			Element eyeNode = (Element) eyesNode.getElementsByTagName("eye").item(0);
 			seyeModel	 = eyeNode.getAttribute("model");
 			seyeMaterial = eyeNode.getAttribute("material");
 
-			VMAvatar  avatar = new VMAvatar( ctx,	sfaceModel,sfaceMaterial, seyeModel, seyeMaterial);
+			VMAvatar  avatar = new VMAvatar( ctx,	sfaceModel, sfaceMaterial, smouthModel, smouthMaterial, seyeModel, seyeMaterial);
 
 			//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

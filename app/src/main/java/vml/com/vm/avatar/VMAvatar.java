@@ -171,7 +171,7 @@ public class VMAvatar
 	public void initRenderScript()
 	{
 		mHead.faceModel.initRenderScript(mContext);
-		//mHead.mouthModel.initRenderScript(mContext);
+		mHead.mouthModel.initRenderScript(mContext);
 	}
 	
 	/**
@@ -483,9 +483,11 @@ public class VMAvatar
 //			mHead.faceModel.BSWeights = pose.faceWeights;
 //			mHead.mouthModel.BSWeights= pose.mouthWeights;
 //		}
-		if(	pose.faceWeights.length==mHead.faceModel.BSWeights.length)
+		if(	pose.faceWeights.length==mHead.faceModel.BSWeights.length )
 		{
 			mHead.faceModel.BSWeights = pose.faceWeights;
+			//mHead.mouthModel.BSWeights= pose.mouthWeights;
+			mHead.mouthModel.BSWeights = pose.faceWeights;
 		}
 		else
 			Log.e("xml","Different Size of Blendshape Weights");
@@ -807,7 +809,7 @@ public class VMAvatar
 
     	//ensure the connected blendshapes between face and mouth
     	doMouthLinks();
-    	//mHead.mouthModel.applyBlendShapes();
+    	mHead.mouthModel.applyBlendShapes();
 
 		useShader();
 
@@ -974,7 +976,7 @@ public class VMAvatar
 		{
 			//load face model textures
 			if (faceMaterial.textureID == -1)	faceMaterial.loadTexture();
-			//if (mouthMaterial.textureID == -1)	mouthMaterial.loadTexture();
+			if (mouthMaterial.textureID == -1)	mouthMaterial.loadTexture();
 			
 			//load eye texture
 			mEye.loadTextures();
@@ -1137,7 +1139,7 @@ public class VMAvatar
 	        renderFace();
 
 	        //draw the mouth
-	        //renderMouth();
+	        renderMouth();
 
 	        //draw extraModels
 	        renderExtraModels();
