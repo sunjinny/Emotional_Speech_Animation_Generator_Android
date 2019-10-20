@@ -184,7 +184,7 @@ public class VMBOLoader
 					}
 				} else if (tokens[0].equals("bump")) 
 				{
-					if (currentMaterial.bump == null) 
+					if (currentMaterial.bump == null)
 					{
 						currentMaterial.bump = BitmapFactory.decodeStream( assetManager.open("Data/"+tokens[1]));
 						if (currentMaterial.bump == null)

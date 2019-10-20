@@ -2,8 +2,10 @@
 <avatar name="Data/Man">
 <head>
 	<face model="Data/manFace.bob" material="Data/manFace.mtl"/>
-	<mouth model="Data/manMouth.bob" material="Data/manMouth.mtl"/>
+	<teeth model="Data/manTeeth.bob" material="Data/manTeeth.mtl"/>
+	<tongue model="Data/manTongue.bob" material="Data/manTongue.mtl"/>
 	<extraHeadModels>
+			<model model="Data/man_upperTeeth.bob" material="Data/man_upperTeeth.mtl"/>
 	</extraHeadModels>
 	<eyes>
 		<eye model="Data/manEye.bob" material="Data/manEye.mtl"/>

@@ -10,6 +10,7 @@ import vml.com.animation.R;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
+import android.os.Debug;
 import android.util.Log;
 
 import vml.com.vm.blend.VMBOLoader;
@@ -94,8 +95,11 @@ public class VMAvatar
 	/** Light position vector*/
 	//private float[] mfvLightPosition = {-0.5f,0,-1};
 	//private float[] mfvLightPosition = {-0.15f,-0.15f,1.2f};
-	private float[] mfvLightPosition = {0, 0.01f, 1.2f};
-	/**Camera position vector*/
+    private float[] mfvLightPosition = {
+            100.0f, 100.0f, -150.0f,
+            -100.0f, -30.0f, -50.0f
+    };
+    /**Camera position vector*/
 	//private float[] mfvEyePosition = {0,0,-5};
 	private float[] mfvEyePosition = {0,0,-50};
 	
@@ -117,7 +121,9 @@ public class VMAvatar
 	private int mfvDiffuseHandle;
 	private int mfvSpecularHandle;
 	private int mfSpecularPowerHandle;
-	
+	private int mfTestTimeHandle;
+    private int mfvEyeTranslationHandle;
+    private int miIsEyeHandle;
 	///////////////////////////////////////////////////////////////////////
 	
     /**
@@ -125,14 +131,19 @@ public class VMAvatar
 	 * @param context
 	 */
 	public VMAvatar(Context context, 	String faceBobFile,  String faceBobMatFile,
-										String mouthBobFile, String mouthMatFile,
+										String teethBobFile, String teethMatFile,
+										String tongueBobFile, String tongueMatFile,
 										String eyeBobFile,	 String eyeMatFile)
 	{	
 		mContext=context;
 		blinkLID=0; blinkRID=0;
 		 try 
 		 {
-			 mHead= new AvatarHead( faceBobFile, faceBobMatFile, mouthBobFile, mouthMatFile, eyeBobFile, eyeMatFile);
+			 mHead= new AvatarHead( faceBobFile, faceBobMatFile, teethBobFile, teethMatFile, tongueBobFile, tongueMatFile, eyeBobFile, eyeMatFile);
+			 if((mHead.faceModel.nBS!=mHead.teethModel.nBS)||(mHead.faceModel.nBS!=mHead.tongueModel.nBS))
+			     Log.e("error","Different blendshape number: Face, Teeth, Tongue !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+             for(int idx=0; idx < mHead.faceModel.nBS; idx++)
+                addMouthLink(idx, idx);
 			 animator=new Animator();			 
 			 animator.start();
 		}
@@ -171,7 +182,8 @@ public class VMAvatar
 	public void initRenderScript()
 	{
 		mHead.faceModel.initRenderScript(mContext);
-		mHead.mouthModel.initRenderScript(mContext);
+		mHead.teethModel.initRenderScript(mContext);
+		mHead.tongueModel.initRenderScript(mContext);
 	}
 	
 	/**
@@ -217,9 +229,13 @@ public class VMAvatar
 	 * Returns the VMBOModel of the mouth
 	 * @return mouthModel VMBOModel 
 	 */	
-	public VMBOModel getMouthModel()
+	public VMBOModel getTeethModel()
 	{
-		return mHead.getMouthModel();
+		return mHead.getTeethModel();
+	}
+	public VMBOModel getTongueModel()
+	{
+		return mHead.getTongueModel();
 	}
 	
 	/**
@@ -407,10 +423,11 @@ public class VMAvatar
 					mHead.faceModel.BSWeights[i]=emotiveWeight*(mHead.faceModel.BSWeights[i]-visPose.faceWeights[i])+visPose.faceWeights[i];  //a*F + (1-a)V--> aF +V -aV --> a*(F-V)+V
 			}
 			
-			for(int i=0; i< mHead.mouthModel.BSWeights.length; i++)
+			for(int i=0; i< mHead.teethModel.BSWeights.length; i++)
 			{
 				if(visPose.mouthWeights[i]>0.01)
-					mHead.mouthModel.BSWeights[i]=emotiveWeight*(mHead.mouthModel.BSWeights[i]-visPose.mouthWeights[i])+visPose.mouthWeights[i];  //a*F + (1-a)V--> aF +V -aV --> a*(F-V)+V
+					mHead.teethModel.BSWeights[i]=emotiveWeight*(mHead.teethModel.BSWeights[i]-visPose.mouthWeights[i])+visPose.mouthWeights[i];  //a*F + (1-a)V--> aF +V -aV --> a*(F-V)+V
+					mHead.tongueModel.BSWeights[i]=emotiveWeight*(mHead.tongueModel.BSWeights[i]-visPose.mouthWeights[i])+visPose.mouthWeights[i];  //a*F + (1-a)V--> aF +V -aV --> a*(F-V)+V
 			}			
 		} 
 		else 
@@ -462,7 +479,8 @@ public class VMAvatar
 		if (EmotiPose != null) 
 		{
 		   mHead.faceModel.BSWeights=EmotiPose.faceWeights.clone();
-		   mHead.mouthModel.BSWeights=EmotiPose.mouthWeights.clone();
+		   mHead.teethModel.BSWeights=EmotiPose.mouthWeights.clone();
+		   mHead.tongueModel.BSWeights=EmotiPose.mouthWeights.clone();
 		} else 
 		{
 		    // No such key so vacation time...
@@ -483,11 +501,11 @@ public class VMAvatar
 //			mHead.faceModel.BSWeights = pose.faceWeights;
 //			mHead.mouthModel.BSWeights= pose.mouthWeights;
 //		}
-		if(	pose.faceWeights.length==mHead.faceModel.BSWeights.length )
+		if(	pose.faceWeights.length==mHead.faceModel.BSWeights.length)
 		{
 			mHead.faceModel.BSWeights = pose.faceWeights;
-			//mHead.mouthModel.BSWeights= pose.mouthWeights;
-			mHead.mouthModel.BSWeights = pose.faceWeights;
+			mHead.teethModel.BSWeights= pose.faceWeights;
+			mHead.tongueModel.BSWeights= pose.faceWeights;
 		}
 		else
 			Log.e("xml","Different Size of Blendshape Weights");
@@ -530,8 +548,10 @@ public class VMAvatar
 	 */
 	public void setMouthBlendshape(int blendID, float weight)
 	{
-		if(blendID>0&&blendID<mHead.mouthModel.BSWeights.length)
-			mHead.mouthModel.BSWeights[blendID]=weight;
+		if(blendID>0&&blendID<mHead.teethModel.BSWeights.length)
+			mHead.teethModel.BSWeights[blendID]=weight;
+		if(blendID>0&&blendID<mHead.tongueModel.BSWeights.length)
+			mHead.tongueModel.BSWeights[blendID]=weight;
 	}
 	
 	/**
@@ -540,8 +560,10 @@ public class VMAvatar
 	 */
 	public void setMouthBlendshape(float[] weights)
 	{
-		if(weights.length==mHead.mouthModel.BSWeights.length)
-			mHead.mouthModel.BSWeights=weights;
+		if(weights.length==mHead.teethModel.BSWeights.length)
+			mHead.teethModel.BSWeights=weights;
+		if(weights.length==mHead.tongueModel.BSWeights.length)
+			mHead.tongueModel.BSWeights=weights;
 	}
 	
 	/**
@@ -646,131 +668,144 @@ public class VMAvatar
 	/**
 	 * Binds the attributes and uniforms
 	 */
-	private void useShader() 
-	{
-		//Log.i(TAG,"useShader!");
-	
-		GLES20.glUseProgram(mProgram);
-		VMShaderUtil.checkGlError("glUseProgram");
-		
-		// get handles for the vertex attributes
-		mrm_VertexHandle = GLES20.glGetAttribLocation(mProgram, "rm_Vertex");
-		VMShaderUtil.checkGlError("glGetAttribLocation rm_Vertex");
-		if (mrm_VertexHandle == -1) {
-		    throw new RuntimeException("Could not get attrib location for rm_Vertex");
-		}
-		mrm_NormalHandle = GLES20.glGetAttribLocation(mProgram, "rm_Normal");
-		VMShaderUtil.checkGlError("glGetAttribLocation rm_Normal");
-		if (mrm_NormalHandle == -1) {
-		    throw new RuntimeException("Could not get attrib location for rm_Normal");
-		}
-		mrm_TexCoord0Handle = GLES20.glGetAttribLocation(mProgram, "rm_TexCoord0");
-		VMShaderUtil.checkGlError("glGetAttribLocation rm_TexCoord0");
-		if (mrm_TexCoord0Handle == -1) {
-		    throw new RuntimeException("Could not get attrib location for rm_TexCoord0");
-		}
-		
-		// get handles for the light and eye positions
-		mfvLightPositionHandle = GLES20.glGetUniformLocation(mProgram, "fvLightPosition");
-		VMShaderUtil.checkGlError("glGetUniformLocation fvLightPosition");
-		if (mfvLightPositionHandle == -1) {
-		    throw new RuntimeException("Could not get uniform location for fvLightPosition");
-		}
-		mfvEyePositionHandle = GLES20.glGetUniformLocation(mProgram, "fvEyePosition");
-		VMShaderUtil.checkGlError("glGetUniformLocation fvEyePosition");
-		if (mfvEyePositionHandle == -1) {
-		    throw new RuntimeException("Could not get uniform location for fvEyePosition");
-		}
-		
-		// get handles for the transform matrices
-		mmatViewProjectionHandle = GLES20.glGetUniformLocation(mProgram, "matViewProjection");
-		VMShaderUtil.checkGlError("glGetUniformLocation matViewProjection");
-		if (mmatViewProjectionHandle == -1) {
-		    throw new RuntimeException("Could not get uniform location for matViewProjection");
-		}
-		mmatViewProjectionInverseTransposeHandle = GLES20.glGetUniformLocation(mProgram, "matViewProjectionInverseTranspose");
-		VMShaderUtil.checkGlError("glGetUniformLocation matViewProjectionInverseTranspose");
-		if (mmatViewProjectionInverseTransposeHandle == -1) {
-		    throw new RuntimeException("Could not get uniform location for matViewProjectionInverseTranspose");
-		}
-		
-		// get handles for the material properties
-		
-		mfvAmbientHandle = GLES20.glGetUniformLocation(mProgram, "fvAmbient");
-		VMShaderUtil.checkGlError("glGetUniformLocation fvAmbient");
-		if (mfvAmbientHandle == -1) {
-		    throw new RuntimeException("Could not get uniform location for fvAmbient");
-		}
-		mfvDiffuseHandle = GLES20.glGetUniformLocation(mProgram, "fvDiffuse");
-		VMShaderUtil.checkGlError("glGetUniformLocation fvDiffuse");
-		if (mfvDiffuseHandle == -1) {
-		    throw new RuntimeException("Could not get uniform location for fvDiffuse");
-		}
-		mfvSpecularHandle = GLES20.glGetUniformLocation(mProgram, "fvSpecular");
-		VMShaderUtil.checkGlError("glGetUniformLocation fvSpecular");
-		if (mfvSpecularHandle == -1) {
-		    throw new RuntimeException("Could not get uniform location for fvSpecular");
-		}
-		mfSpecularPowerHandle = GLES20.glGetUniformLocation(mProgram, "fSpecularPower");
-		VMShaderUtil.checkGlError("glGetUniformLocation fSpecularPower");
-		if (mfSpecularPowerHandle == -1) {
-		    throw new RuntimeException("Could not get uniform location for fSpecularPower");
-		    }
-		miTexturedHandle = GLES20.glGetUniformLocation(mProgram, "iTextured");
-		VMShaderUtil.checkGlError("glGetUniformLocation iTextured");
-		if (miTexturedHandle == -1) {
-		    throw new RuntimeException("Could not get uniform location for iTextured");
-		    }
-	}
-	
+    private void useShader()
+    {
+        //Log.i(TAG,"useShader!");
+
+        GLES20.glUseProgram(mProgram);
+        VMShaderUtil.checkGlError("glUseProgram");
+
+        // get handles for the vertex attributes
+        mrm_VertexHandle = GLES20.glGetAttribLocation(mProgram, "rm_Vertex");
+        VMShaderUtil.checkGlError("glGetAttribLocation rm_Vertex");
+        if (mrm_VertexHandle == -1) {
+            throw new RuntimeException("Could not get attrib location for rm_Vertex");
+        }
+        mrm_NormalHandle = GLES20.glGetAttribLocation(mProgram, "rm_Normal");
+        VMShaderUtil.checkGlError("glGetAttribLocation rm_Normal");
+        if (mrm_NormalHandle == -1) {
+            throw new RuntimeException("Could not get attrib location for rm_Normal");
+        }
+        mrm_TexCoord0Handle = GLES20.glGetAttribLocation(mProgram, "rm_TexCoord0");
+        VMShaderUtil.checkGlError("glGetAttribLocation rm_TexCoord0");
+        if (mrm_TexCoord0Handle == -1) {
+            throw new RuntimeException("Could not get attrib location for rm_TexCoord0");
+        }
+
+        // get handles for the light and eye positions
+        mfvLightPositionHandle = GLES20.glGetUniformLocation(mProgram, "fvLightPosition");
+        VMShaderUtil.checkGlError("glGetUniformLocation fvLightPosition");
+        if (mfvLightPositionHandle == -1) {
+            throw new RuntimeException("Could not get uniform location for fvLightPosition");
+        }
+        mfvEyePositionHandle = GLES20.glGetUniformLocation(mProgram, "fvEyePosition");
+        VMShaderUtil.checkGlError("glGetUniformLocation fvEyePosition");
+        if (mfvEyePositionHandle == -1) {
+            throw new RuntimeException("Could not get uniform location for fvEyePosition");
+        }
+
+        // get handles for the transform matrices
+        mmatViewProjectionHandle = GLES20.glGetUniformLocation(mProgram, "matViewProjection");
+        VMShaderUtil.checkGlError("glGetUniformLocation matViewProjection");
+        if (mmatViewProjectionHandle == -1) {
+            throw new RuntimeException("Could not get uniform location for matViewProjection");
+        }
+        mmatViewProjectionInverseTransposeHandle = GLES20.glGetUniformLocation(mProgram, "matViewProjectionInverseTranspose");
+        VMShaderUtil.checkGlError("glGetUniformLocation matViewProjectionInverseTranspose");
+        if (mmatViewProjectionInverseTransposeHandle == -1) {
+            //throw new RuntimeException("Could not get uniform location for matViewProjectionInverseTranspose");
+        }
+
+        // get handles for the material properties
+
+        mfvAmbientHandle = GLES20.glGetUniformLocation(mProgram, "fvAmbient");
+        VMShaderUtil.checkGlError("glGetUniformLocation fvAmbient");
+        if (mfvAmbientHandle == -1) {
+            //throw new RuntimeException("Could not get uniform location for fvAmbient");
+        }
+        mfvDiffuseHandle = GLES20.glGetUniformLocation(mProgram, "fvDiffuse");
+        VMShaderUtil.checkGlError("glGetUniformLocation fvDiffuse");
+        if (mfvDiffuseHandle == -1) {
+            //throw new RuntimeException("Could not get uniform location for fvDiffuse");
+        }
+        mfvSpecularHandle = GLES20.glGetUniformLocation(mProgram, "fvSpecular");
+        VMShaderUtil.checkGlError("glGetUniformLocation fvSpecular");
+        if (mfvSpecularHandle == -1) {
+            //throw new RuntimeException("Could not get uniform location for fvSpecular");
+        }
+        mfSpecularPowerHandle = GLES20.glGetUniformLocation(mProgram, "fSpecularPower");
+        VMShaderUtil.checkGlError("glGetUniformLocation fSpecularPower");
+        if (mfSpecularPowerHandle == -1) {
+            //throw new RuntimeException("Could not get uniform location for fSpecularPower");
+        }
+        miTexturedHandle = GLES20.glGetUniformLocation(mProgram, "iTextured");
+        VMShaderUtil.checkGlError("glGetUniformLocation iTextured");
+        if (miTexturedHandle == -1) {
+            //throw new RuntimeException("Could not get uniform location for iTextured");
+        }
+
+        mfTestTimeHandle = GLES20.glGetUniformLocation(mProgram, "iTime");
+        mfvEyeTranslationHandle = GLES20.glGetUniformLocation(mProgram, "fvEyeTranslation");
+        miIsEyeHandle = GLES20.glGetUniformLocation(mProgram, "iIsEye");
+    }
+
 	/**
 	 * render the models in the Extra Models group
 	 */
 	private void renderExtraModels()
 	{
 		//load extra textures
-		for(int i=0; i<extraModels.size();i++)			
+		for(int i=0; i<extraModels.size();i++)
 		{
 			//bind buffers
 	    	// vertex array
 	        GLES20.glVertexAttribPointer(mrm_VertexHandle, 3, GLES20.GL_FLOAT, false,0, extraModels.get(i).mVerticesBuffer);		VMShaderUtil.checkGlError("glVertexAttribPointer mrm_VertexHandle");
-	        GLES20.glEnableVertexAttribArray(mrm_VertexHandle);																			VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_VertexHandle");	        
+	        GLES20.glEnableVertexAttribArray(mrm_VertexHandle);																			VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_VertexHandle");
 	        // normal array
 	        GLES20.glVertexAttribPointer(mrm_NormalHandle, 3, GLES20.GL_FLOAT, false, 0,  extraModels.get(i).mNormalsBuffer);		VMShaderUtil.checkGlError("glVertexAttribPointer mrm_NormalHandle");
 	        GLES20.glEnableVertexAttribArray(mrm_NormalHandle);																			VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_NormalHandle");
 	        // UV array
 	        GLES20.glVertexAttribPointer(mrm_TexCoord0Handle, 2, GLES20.GL_FLOAT, false, 0,  extraModels.get(i).mTexCoordsBuffer);	VMShaderUtil.checkGlError("glVertexAttribPointer mrm_TexCoord0Handle");
 			GLES20.glEnableVertexAttribArray(mrm_TexCoord0Handle);
-			
+
 			//bind material, textures
-			GLES20.glUniform4f(mfvAmbientHandle,	 extraMaterials.get(i).matrix[0], extraMaterials.get(i).matrix[1], extraMaterials.get(i).matrix[2],  extraMaterials.get(i).matrix[3]);		VMShaderUtil.checkGlError("glUniform4f mfvAmbientHandle");		
-			GLES20.glUniform4f(mfvDiffuseHandle,	 extraMaterials.get(i).matrix[4], extraMaterials.get(i).matrix[5], extraMaterials.get(i).matrix[6],  extraMaterials.get(i).matrix[7]);		VMShaderUtil.checkGlError("glUniform4f mfvDiffuseHandle");		
-			GLES20.glUniform4f(mfvSpecularHandle,	 extraMaterials.get(i).matrix[8], extraMaterials.get(i).matrix[9], extraMaterials.get(i).matrix[10],  extraMaterials.get(i).matrix[11]);	VMShaderUtil.checkGlError("glUniform4f mfvSpecularHandle");		
+			GLES20.glUniform4f(mfvAmbientHandle,	 extraMaterials.get(i).matrix[0], extraMaterials.get(i).matrix[1], extraMaterials.get(i).matrix[2],  extraMaterials.get(i).matrix[3]);		VMShaderUtil.checkGlError("glUniform4f mfvAmbientHandle");
+			GLES20.glUniform4f(mfvDiffuseHandle,	 extraMaterials.get(i).matrix[4], extraMaterials.get(i).matrix[5], extraMaterials.get(i).matrix[6],  extraMaterials.get(i).matrix[7]);		VMShaderUtil.checkGlError("glUniform4f mfvDiffuseHandle");
+			GLES20.glUniform4f(mfvSpecularHandle,	 extraMaterials.get(i).matrix[8], extraMaterials.get(i).matrix[9], extraMaterials.get(i).matrix[10],  extraMaterials.get(i).matrix[11]);	VMShaderUtil.checkGlError("glUniform4f mfvSpecularHandle");
 			GLES20.glUniform1f(mfSpecularPowerHandle,extraMaterials.get(i).matrix[12]);																														VMShaderUtil.checkGlError("glUniform1f mfSpecularPowerHandle");
-			
+
 			// turn on the texture if there is one
-			if (extraMaterials.get(i).textureID != -1 ) 
+			if (extraMaterials.get(i).textureID != -1 )
 			{
-				
+
 				GLES20.glEnableVertexAttribArray(mrm_TexCoord0Handle);
 				GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 				GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, extraMaterials.get(i).textureID);
 				GLES20.glUniform1i(miTexturedHandle, 1);
-				
+
 			}
-			else				
+			else
 				GLES20.glUniform1i(miTexturedHandle, 0);
+
+			if (extraMaterials.get(i).bumpID != -1 )
+			{
+
+				GLES20.glEnableVertexAttribArray(mrm_TexCoord0Handle);
+				GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
+				GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, extraMaterials.get(i).bumpID);
+
+			}
 
 			GLES20.glDrawElements(GLES20.GL_TRIANGLES,extraModels.get(i).mIndexBuffer.capacity(), GLES20.GL_UNSIGNED_SHORT, extraModels.get(i).mIndexBuffer);		VMShaderUtil.checkGlError("glDrawElements");
 		}
 	}
-	
+
 	/**
 	 * Associates a face blendshape to a mouth blendshape
 	 * The face blendshape will control the weight of its associated blendshape.
 	 * Needed for actions that need to be done together.
-	 * For example, jaw opening(face) and mouth opening (mouth) 
-	 * 
+	 * For example, jaw opening(face) and mouth opening (mouth)
+	 *
 	 * @param faceBlendshape index of the face blendshape
 	 * @param mouthBlendshape: index of the mouth blendshape
 	 */
@@ -778,7 +813,7 @@ public class VMAvatar
 	{
 		mouthLinks.put(faceBlendshape, mouthBlendshape);
 	}
-	
+
 	/**
 	 * Enforces all of the existing  mouth links.
 	 * Applies the face blendshape weight to its associated mouth blendshape
@@ -787,14 +822,17 @@ public class VMAvatar
 	private void doMouthLinks()
 	{
 		//iterate over the keys
-		for (Integer key : mouthLinks.keySet()) 
-		{
-			if(key!=null)
-				mHead.mouthModel.BSWeights[mouthLinks.get(key)]=mHead.faceModel.BSWeights[key];
+//		for (Integer key : mouthLinks.keySet())
+//		{
+//			if(key!=null)
+        for(int key=0; key<mHead.faceModel.nBS; key++){
+            //Log.d("check", "key: "+key+", face: "+mHead.faceModel.nBS+", tongue: "+mHead.tongueModel.nBS);
+            mHead.teethModel.BSWeights[mouthLinks.get(key)]=mHead.faceModel.BSWeights[key];
+            mHead.tongueModel.BSWeights[mouthLinks.get(key)]=mHead.faceModel.BSWeights[key];
 		}
-    	
+
 	}
-	
+
 	/**
 	 * Renders the whole Avatar
 	 *  
@@ -809,13 +847,15 @@ public class VMAvatar
 
     	//ensure the connected blendshapes between face and mouth
     	doMouthLinks();
-    	mHead.mouthModel.applyBlendShapes();
+    	mHead.teethModel.applyBlendShapes();
+		mHead.tongueModel.applyBlendShapes();
 
 		useShader();
 
 		//bind global Attributes
 		//bind the light and eye positions
-		GLES20.glUniform3f(mfvLightPositionHandle,   mfvLightPosition[0], mfvLightPosition[1], mfvLightPosition[2]); VMShaderUtil.checkGlError("glUniform3f mfvLightPositionHandle");
+        GLES20.glUniform3f(GLES20.glGetUniformLocation(mProgram, "fvLightPosition[0]"), mfvLightPosition[0], mfvLightPosition[1], mfvLightPosition[2]); VMShaderUtil.checkGlError("glUniform3f mfvLightPositionHandle");
+        GLES20.glUniform3f(GLES20.glGetUniformLocation(mProgram, "fvLightPosition[1]"), mfvLightPosition[3], mfvLightPosition[4], mfvLightPosition[5]); VMShaderUtil.checkGlError("glUniform3f mfvLightPositionHandle");
 		GLES20.glUniform3f(mfvEyePositionHandle,mfvEyePosition[0], mfvEyePosition[1], mfvEyePosition[2]);			VMShaderUtil.checkGlError("glUniform3f mfvEyePositionHandle");
 
 
@@ -851,8 +891,11 @@ public class VMAvatar
 		private VMBOModel faceModel;
 		private VMMaterial faceMaterial;
 		
-		private VMBOModel mouthModel;
-		private VMMaterial mouthMaterial;
+		private VMBOModel teethModel;
+		private VMMaterial teethMaterial;
+
+		private VMBOModel tongueModel;
+		private VMMaterial tongueMaterial;
 		
 		private List<VMBOModel> extraHeadModels	= new ArrayList<VMBOModel>();
 		private List<VMMaterial> extraHeadMaterials= new ArrayList<VMMaterial>();
@@ -866,14 +909,18 @@ public class VMAvatar
 	    private AvatarEye mEye;
 	    
 		public AvatarHead(String faceBobFile,  String faceBobMatFile,
-							String mouthBobFile, String mouthMatFile,
+							String teethBobFile, String teethMatFile,
+						    String tongueBobFile, String tongueMatFile,
 							String eyeBobFile,	 String eyeMatFile) throws IOException
 		{
 			faceModel=VMBOLoader.loadModel(mContext,faceBobFile);
 			faceMaterial = VMBOLoader.loadMaterials(mContext, faceBobMatFile);
 			
-			mouthModel=VMBOLoader.loadModel(mContext,mouthBobFile);
-			mouthMaterial = VMBOLoader.loadMaterials(mContext, mouthMatFile);
+			teethModel=VMBOLoader.loadModel(mContext,teethBobFile);
+			teethMaterial = VMBOLoader.loadMaterials(mContext, teethMatFile);
+
+			tongueModel=VMBOLoader.loadModel(mContext,tongueBobFile);
+			tongueMaterial = VMBOLoader.loadMaterials(mContext, tongueMatFile);
 			
 			mEye= new AvatarEye(eyeBobFile,eyeMatFile);
 		}
@@ -902,9 +949,13 @@ public class VMAvatar
 		 * Returns the VMBOModel of the mouth
 		 * @return mouthModel VMBOModel 
 		 */	
-		public VMBOModel getMouthModel()
+		public VMBOModel getTeethModel()
 		{
-			return mouthModel;
+			return teethModel;
+		}
+		public VMBOModel getTongueModel()
+		{
+			return tongueModel;
 		}
 		
 		
@@ -976,7 +1027,7 @@ public class VMAvatar
 		{
 			//load face model textures
 			if (faceMaterial.textureID == -1)	faceMaterial.loadTexture();
-			if (mouthMaterial.textureID == -1)	mouthMaterial.loadTexture();
+			//if (mouthMaterial.textureID == -1)	mouthMaterial.loadTexture();
 			
 			//load eye texture
 			mEye.loadTextures();
@@ -995,8 +1046,16 @@ public class VMAvatar
 		 * Renders the Face model 
 		 
 		 */
+
+		float testTime = 0;
+
 		private void renderFace()
 		{
+			testTime++;
+			GLES20.glUniform1f(mfTestTimeHandle, testTime);
+            GLES20.glUniform1i(miIsEyeHandle, 0);
+
+
 			//bind buffers
 	    	// vertex array
 	        GLES20.glVertexAttribPointer(mrm_VertexHandle, 3, GLES20.GL_FLOAT, false,0, faceModel.mVerticesBuffer);
@@ -1020,57 +1079,105 @@ public class VMAvatar
 			GLES20.glUniform4f(mfvSpecularHandle,faceMaterial.matrix[8], faceMaterial.matrix[9], faceMaterial.matrix[10],  faceMaterial.matrix[11]);	VMShaderUtil.checkGlError("glUniform4f mfvSpecularHandle");
 			GLES20.glUniform1f(mfSpecularPowerHandle, faceMaterial.matrix[12]);																			VMShaderUtil.checkGlError("glUniform1f mfSpecularPowerHandle");
 
+			GLES20.glUniform3f(mfvEyeTranslationHandle, 0.0f, 0.0f, 0.0f);
 
 			// turn on the texture if there is one
 			if (faceMaterial.textureID != -1)
 			{
+				int mTextureUniformHandle = GLES20.glGetUniformLocation(mProgram, "baseMap");
 				GLES20.glEnableVertexAttribArray(mrm_TexCoord0Handle);
 				GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 				GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, faceMaterial.textureID);
+				GLES20.glUniform1i(mTextureUniformHandle, 0);
 				GLES20.glUniform1i(miTexturedHandle, 1);
 			}
 			else
 				GLES20.glUniform1i(miTexturedHandle, 0);
+
+			if (faceMaterial.bumpID != -1)
+			{
+				int mTextureUniformHandle = GLES20.glGetUniformLocation(mProgram, "bumpMap");
+				GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
+				GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, faceMaterial.bumpID);
+				GLES20.glUniform1i(mTextureUniformHandle, 1);
+			}
+
 			//draw models
 			GLES20.glDrawElements(GLES20.GL_TRIANGLES,faceModel.mIndexBuffer.capacity(), GLES20.GL_UNSIGNED_SHORT, faceModel.mIndexBuffer);		VMShaderUtil.checkGlError("glDrawElements");
 		}
 		/**
 		 * Renders the Mouth model
 		 */
-		private void renderMouth()
+		private void renderTeeth()
 		{
 			//bind buffers
 	    	// vertex array
-	        GLES20.glVertexAttribPointer(mrm_VertexHandle, 3, GLES20.GL_FLOAT, false,0, mouthModel.mVerticesBuffer);		VMShaderUtil.checkGlError("glVertexAttribPointer mrm_VertexHandle");
+	        GLES20.glVertexAttribPointer(mrm_VertexHandle, 3, GLES20.GL_FLOAT, false,0, teethModel.mVerticesBuffer);		VMShaderUtil.checkGlError("glVertexAttribPointer mrm_VertexHandle");
 	        GLES20.glEnableVertexAttribArray(mrm_VertexHandle);															VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_VertexHandle");	        
 	        // normal array
-	        GLES20.glVertexAttribPointer(mrm_NormalHandle, 3, GLES20.GL_FLOAT, false, 0, mouthModel.mNormalsBuffer);		VMShaderUtil.checkGlError("glVertexAttribPointer mrm_NormalHandle");
+	        GLES20.glVertexAttribPointer(mrm_NormalHandle, 3, GLES20.GL_FLOAT, false, 0, teethModel.mNormalsBuffer);		VMShaderUtil.checkGlError("glVertexAttribPointer mrm_NormalHandle");
 	        GLES20.glEnableVertexAttribArray(mrm_NormalHandle);															VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_NormalHandle");
 	        // UV array
-	        GLES20.glVertexAttribPointer(mrm_TexCoord0Handle, 2, GLES20.GL_FLOAT, false, 0, mouthModel.mTexCoordsBuffer);	VMShaderUtil.checkGlError("glVertexAttribPointer mrm_TexCoord0Handle");
+	        GLES20.glVertexAttribPointer(mrm_TexCoord0Handle, 2, GLES20.GL_FLOAT, false, 0, teethModel.mTexCoordsBuffer);	VMShaderUtil.checkGlError("glVertexAttribPointer mrm_TexCoord0Handle");
 			GLES20.glEnableVertexAttribArray(mrm_TexCoord0Handle);														VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_TexCoord0Handle");
 
 	        //bind material, textures
-			GLES20.glUniform4f(mfvAmbientHandle,mouthMaterial.matrix[0], mouthMaterial.matrix[1], mouthMaterial.matrix[2],  mouthMaterial.matrix[3]);		VMShaderUtil.checkGlError("glUniform4f mfvAmbientHandle");		
-			GLES20.glUniform4f(mfvDiffuseHandle,mouthMaterial.matrix[4], mouthMaterial.matrix[5], mouthMaterial.matrix[6],  mouthMaterial.matrix[7]);		VMShaderUtil.checkGlError("glUniform4f mfvDiffuseHandle");		
-			GLES20.glUniform4f(mfvSpecularHandle,mouthMaterial.matrix[8], mouthMaterial.matrix[9], mouthMaterial.matrix[10],  mouthMaterial.matrix[11]);	VMShaderUtil.checkGlError("glUniform4f mfvSpecularHandle");		
-			GLES20.glUniform1f(mfSpecularPowerHandle, mouthMaterial.matrix[12]);																			VMShaderUtil.checkGlError("glUniform1f mfSpecularPowerHandle");
+			GLES20.glUniform4f(mfvAmbientHandle,teethMaterial.matrix[0], teethMaterial.matrix[1], teethMaterial.matrix[2],  teethMaterial.matrix[3]);		VMShaderUtil.checkGlError("glUniform4f mfvAmbientHandle");
+			GLES20.glUniform4f(mfvDiffuseHandle,teethMaterial.matrix[4], teethMaterial.matrix[5], teethMaterial.matrix[6],  teethMaterial.matrix[7]);		VMShaderUtil.checkGlError("glUniform4f mfvDiffuseHandle");
+			GLES20.glUniform4f(mfvSpecularHandle,teethMaterial.matrix[8], teethMaterial.matrix[9], teethMaterial.matrix[10],  teethMaterial.matrix[11]);	VMShaderUtil.checkGlError("glUniform4f mfvSpecularHandle");
+			GLES20.glUniform1f(mfSpecularPowerHandle, teethMaterial.matrix[12]);																			VMShaderUtil.checkGlError("glUniform1f mfSpecularPowerHandle");
 			
 				
 			// turn on the texture if there is one
-			if (mouthMaterial.textureID != -1) 
+			if (teethMaterial.textureID != -1)
 			{
 				GLES20.glEnableVertexAttribArray(mrm_TexCoord0Handle);
 				GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-				GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mouthMaterial.textureID);
+				GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, teethMaterial.textureID);
 				GLES20.glUniform1i(miTexturedHandle, 1);
 				
 			}
 			else
 				GLES20.glUniform1i(miTexturedHandle, 0);
 			//draw models
-			GLES20.glDrawElements(GLES20.GL_TRIANGLES,mouthModel.mIndexBuffer.capacity(), GLES20.GL_UNSIGNED_SHORT, mouthModel.mIndexBuffer);		VMShaderUtil.checkGlError("glDrawElements");
+			GLES20.glDrawElements(GLES20.GL_TRIANGLES,teethModel.mIndexBuffer.capacity(), GLES20.GL_UNSIGNED_SHORT, teethModel.mIndexBuffer);		VMShaderUtil.checkGlError("glDrawElements");
 			
+		}
+
+		private void renderTongue()
+		{
+			//bind buffers
+			// vertex array
+			GLES20.glVertexAttribPointer(mrm_VertexHandle, 3, GLES20.GL_FLOAT, false,0, tongueModel.mVerticesBuffer);		VMShaderUtil.checkGlError("glVertexAttribPointer mrm_VertexHandle");
+			GLES20.glEnableVertexAttribArray(mrm_VertexHandle);															VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_VertexHandle");
+			// normal array
+			GLES20.glVertexAttribPointer(mrm_NormalHandle, 3, GLES20.GL_FLOAT, false, 0, tongueModel.mNormalsBuffer);		VMShaderUtil.checkGlError("glVertexAttribPointer mrm_NormalHandle");
+			GLES20.glEnableVertexAttribArray(mrm_NormalHandle);															VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_NormalHandle");
+			// UV array
+			GLES20.glVertexAttribPointer(mrm_TexCoord0Handle, 2, GLES20.GL_FLOAT, false, 0, tongueModel.mTexCoordsBuffer);	VMShaderUtil.checkGlError("glVertexAttribPointer mrm_TexCoord0Handle");
+			GLES20.glEnableVertexAttribArray(mrm_TexCoord0Handle);														VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_TexCoord0Handle");
+
+			//bind material, textures
+			GLES20.glUniform4f(mfvAmbientHandle,tongueMaterial.matrix[0], tongueMaterial.matrix[1], tongueMaterial.matrix[2],  tongueMaterial.matrix[3]);		VMShaderUtil.checkGlError("glUniform4f mfvAmbientHandle");
+			GLES20.glUniform4f(mfvDiffuseHandle,tongueMaterial.matrix[4], tongueMaterial.matrix[5], tongueMaterial.matrix[6],  tongueMaterial.matrix[7]);		VMShaderUtil.checkGlError("glUniform4f mfvDiffuseHandle");
+			GLES20.glUniform4f(mfvSpecularHandle,tongueMaterial.matrix[8], tongueMaterial.matrix[9], tongueMaterial.matrix[10],  tongueMaterial.matrix[11]);	VMShaderUtil.checkGlError("glUniform4f mfvSpecularHandle");
+			GLES20.glUniform1f(mfSpecularPowerHandle, tongueMaterial.matrix[12]);																			VMShaderUtil.checkGlError("glUniform1f mfSpecularPowerHandle");
+
+
+			// turn on the texture if there is one
+			if (tongueMaterial.textureID != -1)
+			{
+				GLES20.glEnableVertexAttribArray(mrm_TexCoord0Handle);
+				GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+				GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, tongueMaterial.textureID);
+				GLES20.glUniform1i(miTexturedHandle, 1);
+
+			}
+			else
+				GLES20.glUniform1i(miTexturedHandle, 0);
+			//draw models
+			GLES20.glDrawElements(GLES20.GL_TRIANGLES,tongueModel.mIndexBuffer.capacity(), GLES20.GL_UNSIGNED_SHORT, tongueModel.mIndexBuffer);		VMShaderUtil.checkGlError("glDrawElements");
+
 		}
 		
 		/**
@@ -1097,7 +1204,9 @@ public class VMAvatar
 				GLES20.glUniform4f(mfvDiffuseHandle,	 extraHeadMaterials.get(i).matrix[4], extraHeadMaterials.get(i).matrix[5], extraHeadMaterials.get(i).matrix[6],  extraHeadMaterials.get(i).matrix[7]);		VMShaderUtil.checkGlError("glUniform4f mfvDiffuseHandle");		
 				GLES20.glUniform4f(mfvSpecularHandle,	 extraHeadMaterials.get(i).matrix[8], extraHeadMaterials.get(i).matrix[9], extraHeadMaterials.get(i).matrix[10],  extraHeadMaterials.get(i).matrix[11]);	VMShaderUtil.checkGlError("glUniform4f mfvSpecularHandle");		
 				GLES20.glUniform1f(mfSpecularPowerHandle,extraHeadMaterials.get(i).matrix[12]);																														VMShaderUtil.checkGlError("glUniform1f mfSpecularPowerHandle");
-				
+
+				GLES20.glUniform3f(mfvEyeTranslationHandle, 0.0f, 0.0f, 0.0f);
+
 				// turn on the texture if there is one
 				if (extraHeadMaterials.get(i).textureID != -1 ) 
 				{
@@ -1111,6 +1220,14 @@ public class VMAvatar
 				else				
 					GLES20.glUniform1i(miTexturedHandle, 0);
 
+				if (extraHeadMaterials.get(i).bumpID != -1)
+				{
+					int mTextureUniformHandle = GLES20.glGetUniformLocation(mProgram, "bumpMap");
+					GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
+					GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, extraHeadMaterials.get(i).bumpID);
+					GLES20.glUniform1i(mTextureUniformHandle, 1);
+				}
+                GLES20.glUniform1i(miIsEyeHandle, 0);
 				GLES20.glDrawElements(GLES20.GL_TRIANGLES,extraHeadModels.get(i).mIndexBuffer.capacity(), GLES20.GL_UNSIGNED_SHORT, extraHeadModels.get(i).mIndexBuffer);		VMShaderUtil.checkGlError("glDrawElements");
 			}
 		}
@@ -1139,7 +1256,8 @@ public class VMAvatar
 	        renderFace();
 
 	        //draw the mouth
-	        renderMouth();
+	        renderTeeth();
+			renderTongue();
 
 	        //draw extraModels
 	        renderExtraModels();
@@ -1222,7 +1340,8 @@ public class VMAvatar
 		 *Renders the left and right eyes  
 		 * @param ModelViewProj: Model View Projection Transform matrix for the eye coordiante system
 		 */
-		
+
+
 		public void render(float[] ModelViewProj) //receive the global transform
 		{
 			MVP= ModelViewProj.clone(); //clone since we need to restore it for the other eye
@@ -1255,14 +1374,24 @@ public class VMAvatar
 			}
 			else
 				GLES20.glUniform1i(miTexturedHandle, 0);
-			
-						
+
+			if (eyeMaterial.bumpID != -1)
+			{
+				int mTextureUniformHandle = GLES20.glGetUniformLocation(mProgram, "bumpMap");
+				GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
+				GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, eyeMaterial.bumpID);
+				GLES20.glUniform1i(mTextureUniformHandle, 1);
+			}
+
+
+            GLES20.glUniform1i(miIsEyeHandle, 1);
+
 			//LEFT EYE///////////////////////////////////////////////////////////////////////////////////////
 			//apply local transform
 			Matrix.translateM(MVP, 0, translation_left[0], translation_left[1], translation_left[2]);
 			Matrix.rotateM(MVP, 0, rotation[0], 1, 0, 0);
 			Matrix.rotateM(MVP, 0, rotation[1], 0, 1, 0);
-			
+
 			//bind matrices
 	        Matrix.invertM(MVP_inv, 0, MVP, 0);	        
 	        Matrix.transposeM(MVP_inv_t, 0, MVP_inv, 0);
@@ -1270,6 +1399,8 @@ public class VMAvatar
 	        // bind the transform matrices
 	        GLES20.glUniformMatrix4fv(mmatViewProjectionHandle, 1, false, MVP, 0);							VMShaderUtil.checkGlError("glUniformMatrix4fv mmatViewProjectionHandle");
 	        GLES20.glUniformMatrix4fv(mmatViewProjectionInverseTransposeHandle, 1, false, MVP_inv_t, 0);	VMShaderUtil.checkGlError("glUniformMatrix4fv mmatViewProjectionInverseTransposeHandle");
+
+			GLES20.glUniform3f(mfvEyeTranslationHandle, translation_left[0], translation_left[1], translation_left[2]);
 
 			//draw models
 			GLES20.glDrawElements(GLES20.GL_TRIANGLES,eyeModel.mIndexBuffer.capacity(), GLES20.GL_UNSIGNED_SHORT, eyeModel.mIndexBuffer);		VMShaderUtil.checkGlError("glDrawElements");
@@ -1280,7 +1411,7 @@ public class VMAvatar
 			//apply local transform
 			Matrix.translateM(MVP, 0, translation_right[0], translation_right[1], translation_right[2]);
 			Matrix.rotateM(MVP, 0, rotation[0], 1, 0, 0);
-			Matrix.rotateM(MVP, 0, rotation[1], 0, 1, 0);			
+			Matrix.rotateM(MVP, 0, rotation[1], 0, 1, 0);
 	        //Matrix.scaleM(MVP,0, 0.1f, 0.1f, 0.1f);		
 	        
 			//bind matrices
@@ -1290,7 +1421,9 @@ public class VMAvatar
 	        // bind the transform matrices
 	        GLES20.glUniformMatrix4fv(mmatViewProjectionHandle, 1, false, MVP, 0);							VMShaderUtil.checkGlError("glUniformMatrix4fv mmatViewProjectionHandle");
 	        GLES20.glUniformMatrix4fv(mmatViewProjectionInverseTransposeHandle, 1, false, MVP_inv_t, 0);		VMShaderUtil.checkGlError("glUniformMatrix4fv mmatViewProjectionInverseTransposeHandle");
-	        
+
+			GLES20.glUniform3f(mfvEyeTranslationHandle, translation_right[0], translation_right[1], translation_right[2]);
+
 			//draw right eye
 			GLES20.glDrawElements(GLES20.GL_TRIANGLES,eyeModel.mIndexBuffer.capacity(), GLES20.GL_UNSIGNED_SHORT, eyeModel.mIndexBuffer);		VMShaderUtil.checkGlError("glDrawElements");
 		}

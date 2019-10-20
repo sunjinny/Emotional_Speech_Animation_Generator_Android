@@ -1,10 +1,9 @@
 # Blender MTL File: 'None'
 # Material Count: 1
-newmtl man_faceSG
+newmtl man_tooth_col
 Ka 0.1 0.1 0.05 
 Kd 0.9 0.8 0.8
 Ks 0.13 0.13 0.20
 #illum 1
 Ns 25
-map_Kd man_face_col.jpg
-bump man_face_index.jpg
+map_Kd man_tooth_col.jpg

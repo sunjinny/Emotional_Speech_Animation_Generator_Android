@@ -6,6 +6,7 @@ import android.content.Context;
 import android.renderscript.Allocation;
 import android.renderscript.Element;
 import android.renderscript.RenderScript;
+import android.util.Log;
 
 import vml.com.animation.R;
 
@@ -111,6 +112,7 @@ public class VMBOModel
 		//Log.d(TAG,"RS - Created");
 		// memory allocation part 
 		allocationA = Allocation.createSized(mRS, Element.F32(mRS),sizeA);
+		Log.i(String.valueOf(sizeA),"size a");
 		allocationB = Allocation.createSized(mRS, Element.F32(mRS),sizeB);
 		allocationC = Allocation.createSized(mRS, Element.F32(mRS),sizeC);
 		allocationN = Allocation.createSized(mRS, Element.F32(mRS),sizeC);

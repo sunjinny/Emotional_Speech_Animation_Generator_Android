@@ -46,8 +46,10 @@ public class VMAvatarLoader
 		{
 			String sAvatarName="";
 			String sfaceModel,sfaceMaterial;
-			String smouthModel,smouthMaterial;
+			String steethModel,steethMaterial;
+			String stongueModel,stongueMaterial;
 			String seyeModel,seyeMaterial;
+
 
 			InputStream is = assetManager.open(avatarFileName);
 			
@@ -61,23 +63,29 @@ public class VMAvatarLoader
 			/////////////////////////////////////////////////////////////////////////////////////////
 			Element avatarEl = doc.getDocumentElement(); //parent node
 			sAvatarName=element.getAttributes().getNamedItem("name").getNodeValue();
+
+			//Log.i("Avatar name", sAvatarName);
 			
 			Element headNode = (Element) avatarEl.getElementsByTagName( "head" ).item(0);			
 			
 			Element faceNode = (Element) headNode.getElementsByTagName("face").item(0);
-			sfaceModel	 = faceNode.getAttributes().getNamedItem("model").getNodeValue();
+			sfaceModel	 = faceNode.getAttributes().getNamedItem("model").getNodeValue();			
 			sfaceMaterial= faceNode.getAttributes().getNamedItem("material").getNodeValue();
 
-            Element mouthNode = (Element) headNode.getElementsByTagName("mouth").item(0);
-            smouthModel	 = mouthNode.getAttributes().getNamedItem("model").getNodeValue();
-            smouthMaterial= mouthNode.getAttributes().getNamedItem("material").getNodeValue();
+			Element teethNode = (Element) headNode.getElementsByTagName("teeth").item(0);
+			steethModel	 = teethNode.getAttributes().getNamedItem("model").getNodeValue();
+			steethMaterial= teethNode.getAttributes().getNamedItem("material").getNodeValue();
+
+			Element tongueNode = (Element) headNode.getElementsByTagName("tongue").item(0);
+			stongueModel	 = tongueNode.getAttributes().getNamedItem("model").getNodeValue();
+			stongueMaterial= tongueNode.getAttributes().getNamedItem("material").getNodeValue();
 
 			Element eyesNode = (Element) headNode.getElementsByTagName("eyes").item(0);
 			Element eyeNode = (Element) eyesNode.getElementsByTagName("eye").item(0);
 			seyeModel	 = eyeNode.getAttribute("model");
 			seyeMaterial = eyeNode.getAttribute("material");
 
-			VMAvatar  avatar = new VMAvatar( ctx,	sfaceModel, sfaceMaterial, smouthModel, smouthMaterial, seyeModel, seyeMaterial);
+			VMAvatar  avatar = new VMAvatar( ctx,	sfaceModel, sfaceMaterial, steethModel, steethMaterial, stongueModel, stongueMaterial, seyeModel, seyeMaterial);
 
 			//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
