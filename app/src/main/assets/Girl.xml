@@ -5,6 +5,7 @@
 		<teeth model="Data/girlTeeth.bob" material="Data/girlTeeth.mtl"/>
 		<tongue model="Data/girlTongue.bob" material="Data/girlTongue.mtl"/>
 		<extraHeadModels>
+			<model model="Data/girl_upperTeeth.bob" material="Data/girl_upperTeeth.mtl"/>
 			<model model="Data/hair.bob" material="Data/girlHair_back.mtl"/>
 			<model model="Data/hair_front.bob" material="Data/girlHair.mtl"/>
 			<model model="Data/hair_back_36.bob" material="Data/girlHair.mtl"/>
@@ -13,7 +14,6 @@
 			<model model="Data/hair_back_39.bob" material="Data/girlHair.mtl"/>
 			<model model="Data/hair_back_40.bob" material="Data/girlHair_back.mtl"/>
 			<model model="Data/hair_back_41.bob" material="Data/girlHair.mtl"/>
-			<model model="Data/girl_upperTeeth.bob" material="Data/girl_upperTeeth.mtl"/>
 		</extraHeadModels>
 		<eyes>
 			<eye model="Data/eye.bob" material="Data/girlEye.mtl"/>
