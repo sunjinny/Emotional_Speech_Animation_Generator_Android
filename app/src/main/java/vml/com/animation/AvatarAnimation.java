@@ -1,5 +1,7 @@
 package vml.com.animation;
 
+import android.util.Log;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -84,9 +86,20 @@ public class AvatarAnimation {
                         fw[j] = Float.parseFloat(partsFW[j]);
                     }
 
+
+                    //START seonghyeon
+                    Element headNoddingNode = (Element) curEl.getElementsByTagName("headNodding").item(0);
+                    Text headNoddingText = (Text) headNoddingNode.getFirstChild();
+                    String stringHeadNodding = headNoddingText.getNodeValue();
+                    String[] partsHN = stringHeadNodding.split(" ");
+                    //END   seonghyeon
+
                     KeyFrame key = new KeyFrame();
                     key.time = Integer.parseInt(keyTime);
                     key.pose = new FacePose(fw);
+                    //START seonghyeon
+                    key.noddingValue = Float.parseFloat(partsHN[0]);
+                    //END   seonghyeon
                     keys.add(key);
                 }
             }

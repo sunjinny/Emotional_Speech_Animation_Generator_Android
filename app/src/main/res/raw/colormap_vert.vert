@@ -5,6 +5,7 @@ uniform sampler2D bumpMap;
 uniform float iTime;
 uniform vec3 fvEyeTranslation;
 uniform vec3 fvEyePosition;
+uniform float fHeadNoddingAngle;
 
 attribute vec4 rm_Vertex;
 attribute vec4 rm_Normal;
@@ -46,15 +47,12 @@ vec3 translatePos(vec3 p, vec3 t, float isHomo){
 void main( void )
 {
     vec3 ecPosition = rm_Vertex.xyz;
-    float weight = texture2D(bumpMap, rm_TexCoord0.xy).z * 0.6;
+    float weight = texture2D(bumpMap, rm_TexCoord0.xy).z;
     vec3 bonePosition = vec3(0.0, 1.0, 0.0);
-    //float newTime = sin(iTime * 0.05);
-    float newTime = 0.0;
-
 
     ecPosition = translatePos(ecPosition, bonePosition, 1.0);
     ecPosition = translatePos(ecPosition, fvEyeTranslation, 1.0);
-    ecPosition = rotateX(ecPosition, newTime * weight, 1.0);
+    ecPosition = rotateX(ecPosition, fHeadNoddingAngle * weight, 1.0);
     ecPosition = translatePos(ecPosition, -fvEyeTranslation, 1.0);
     ecPosition = translatePos(ecPosition, -bonePosition, 1.0);
 
@@ -69,7 +67,7 @@ void main( void )
 
     ViewDir = fvEyePosition - fvObjectPosition.xyz;
 
-    vec3 newNormal = rotateX(rm_Normal.xyz, newTime * weight, 0.0);
+    vec3 newNormal = rotateX(rm_Normal.xyz, fHeadNoddingAngle * weight, 0.0);
 
     newNormal = (matViewProjection * vec4(newNormal, 0.0)).xyz;
 
