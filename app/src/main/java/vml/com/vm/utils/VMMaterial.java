@@ -3,7 +3,6 @@ package vml.com.vm.utils;
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
-import android.util.Log;
 
 /**
  * Material Class
@@ -120,8 +119,7 @@ public class VMMaterial
 			mTexture.recycle();
 			mTexture = null;
 		}
-
-
+		
 		if (mBump != null) {
 			int[] textures = new int[1];
 			GLES20.glActiveTexture(GLES20.GL_TEXTURE1);

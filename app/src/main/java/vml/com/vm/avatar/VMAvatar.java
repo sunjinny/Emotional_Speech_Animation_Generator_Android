@@ -6,14 +6,11 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-
 import vml.com.animation.R;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.os.Debug;
-import android.os.SystemClock;
 import android.util.Log;
 
 import vml.com.vm.blend.VMBOLoader;
@@ -127,7 +124,6 @@ public class VMAvatar
 	private int mfTestTimeHandle;
     private int mfvEyeTranslationHandle;
     private int miIsEyeHandle;
-	private int mfHeadNoddingAngleHandle;
 	///////////////////////////////////////////////////////////////////////
 	
     /**
@@ -263,7 +259,7 @@ public class VMAvatar
 	
 	public void setKeyFrame(int keyTime, FacePose keyPose)
 	{
-		animator.animEngine.addKey(keyTime, keyPose);
+		animator.animEngine.addKey(keyTime, keyPose);	
 	}
 	
 	/**
@@ -331,13 +327,6 @@ public class VMAvatar
 		animations.put(animName, keyList);
 		return;
 	}
-
-	private float GlobalHeadNoddingValue;
-	public void headNod(float inputHeadNoddingValue)
-	{
-        GlobalHeadNoddingValue = inputHeadNoddingValue;
-	}
-
 	
 	/**
 	 * enables/disable the randomized blinking 
@@ -758,7 +747,6 @@ public class VMAvatar
         mfTestTimeHandle = GLES20.glGetUniformLocation(mProgram, "iTime");
         mfvEyeTranslationHandle = GLES20.glGetUniformLocation(mProgram, "fvEyeTranslation");
         miIsEyeHandle = GLES20.glGetUniformLocation(mProgram, "iIsEye");
-		mfHeadNoddingAngleHandle = GLES20.glGetUniformLocation(mProgram, "fHeadNoddingAngle");
     }
 
 	/**
@@ -899,27 +887,27 @@ public class VMAvatar
 		private float[] translation= {0.0f,0.0f,0.0f};
 		public float[] rotation= {0.0f,0.0f,0.0f};
 		public float[] rotationOffset= {0.0f,0.0f,0.0f};
-
+		
 		private VMBOModel faceModel;
 		private VMMaterial faceMaterial;
-
+		
 		private VMBOModel teethModel;
 		private VMMaterial teethMaterial;
 
 		private VMBOModel tongueModel;
 		private VMMaterial tongueMaterial;
-
+		
 		private List<VMBOModel> extraHeadModels	= new ArrayList<VMBOModel>();
 		private List<VMMaterial> extraHeadMaterials= new ArrayList<VMMaterial>();
-
+		
 		private boolean followEyes=false;
-
+		
 		//matrices
 		private float[] MVP_inv = new float[16];
 	    private float[] MVP_inv_t = new float[16];
-
+	    
 	    private AvatarEye mEye;
-
+	    
 		public AvatarHead(String faceBobFile,  String faceBobMatFile,
 							String teethBobFile, String teethMatFile,
 						    String tongueBobFile, String tongueMatFile,
@@ -927,13 +915,13 @@ public class VMAvatar
 		{
 			faceModel=VMBOLoader.loadModel(mContext,faceBobFile);
 			faceMaterial = VMBOLoader.loadMaterials(mContext, faceBobMatFile);
-
+			
 			teethModel=VMBOLoader.loadModel(mContext,teethBobFile);
 			teethMaterial = VMBOLoader.loadMaterials(mContext, teethMatFile);
 
 			tongueModel=VMBOLoader.loadModel(mContext,tongueBobFile);
 			tongueMaterial = VMBOLoader.loadMaterials(mContext, tongueMatFile);
-
+			
 			mEye= new AvatarEye(eyeBobFile,eyeMatFile);
 		}
 
@@ -947,20 +935,20 @@ public class VMAvatar
 
 			mEye= new AvatarEye(eyeBobFile,eyeMatFile);
 		}
-
+		
 		/**
 		 * Returns the VMBOModel of the face
-		 * @return faceModel VMBOModel
-		 */
+		 * @return faceModel VMBOModel 
+		 */	
 		public VMBOModel getFaceModel()
 		{
 			return faceModel;
 		}
-
+		
 		/**
 		 * Returns the VMBOModel of the mouth
-		 * @return mouthModel VMBOModel
-		 */
+		 * @return mouthModel VMBOModel 
+		 */	
 		public VMBOModel getTeethModel()
 		{
 			return teethModel;
@@ -969,24 +957,24 @@ public class VMAvatar
 		{
 			return tongueModel;
 		}
-
-
+		
+		
 		/**
-		 *Set the translation of the head with respect to the world coordinate frame
-		 *
+		 *Set the translation of the head with respect to the world coordinate frame 
+		 * 
 		 * @param trans float[] 3D orientation vector for the eyes rx,ry,rz
-		 *
+		 * 
 		 */
 		public void setTranslation(float[] trans)
 		{
 			translation=trans;
 		}
-
+		
 		/**
 		 *Sets the orientation of the head
-		 *
+		 * 
 		 * @param rot float[] 3D orientation vector rx,ry,rz
-		 *
+		 * 
 		 */
 		public void setRotation(float[] rot)
 		{
@@ -997,10 +985,10 @@ public class VMAvatar
 				if(rotation[i]<-45.0f) rotation[i]=-45.0f;
 			}
 		}
-
+		
 		/**
-		 * Sets the eyes translation with respect of the head coordinate system
-		 *
+		 * Sets the eyes translation with respect of the head coordinate system 
+		 * 
 		 * @param eyeTransL: left eye translation
 		 * @param eyeTransR: right eye translation
 		 */
@@ -1010,42 +998,16 @@ public class VMAvatar
 		}
 
 		/**
-		 *Sets the orientation of the eyes
-		 *
+		 *Sets the orientation of the eyes 
+		 * 
 		 * @param eyeRot float[] 3D orientation vector for the eyes rx,ry,rz
-		 *
+		 * 
 		 */
 		public void setEyeRotation(float[] eyeRot)
 		{
 			mEye.setRotation(eyeRot);
 		}
-
-		private float tempElapsedTime = 0f;
-		private long elapsedRealtime = 0;
-        private float interval = 3.8f;
-        private float[] desiredEyeRotation = new float[3];
-		private float[] currentEyeRotation = new float[3];
-		private float maxAngle = 10;
-		private void setEyeRandomRotation()
-		{
-			elapsedRealtime = SystemClock.elapsedRealtime() - elapsedRealtime;
-			tempElapsedTime += elapsedRealtime * 0.001;
-
-			for(int i = 0; i < 2; i++){
-				currentEyeRotation[i] += (desiredEyeRotation[i] - currentEyeRotation[i]) * 0.4f;
-			}
-			mEye.setRotation(currentEyeRotation);
-			if(tempElapsedTime > interval) {
-				tempElapsedTime = 0f;
-				for(int i = 0; i < 2; i++){
-					desiredEyeRotation[i] = (float)Math.random() * maxAngle - maxAngle * 0.5f;
-				}
-			}
-			elapsedRealtime = SystemClock.elapsedRealtime();
-		}
-
-
-
+		
 		/**
 		 * Adds a model to the extra model group
 		 * @param mod: loaded Model
@@ -1055,7 +1017,7 @@ public class VMAvatar
 		{
 			extraHeadModels.add(mod);
 			extraHeadMaterials.add(mat);
-
+			
 			//Log.i(TAG,"added material succesfully"+ extraHeadModels.size()+" "+extraHeadMaterials.size());
 		}
 		/**
@@ -1065,26 +1027,24 @@ public class VMAvatar
 		{
 			//load face model textures
 			if (faceMaterial.textureID == -1)	faceMaterial.loadTexture();
-			if (teethMaterial.textureID == -1)	teethMaterial.loadTexture();
-			if (tongueMaterial.textureID == -1)	tongueMaterial.loadTexture();
 			//if (mouthMaterial.textureID == -1)	mouthMaterial.loadTexture();
-
+			
 			//load eye texture
 			mEye.loadTextures();
-
+			
 			//Log.e(TAG, "this works");
-
+			
 			//load extra textures
 			for(int i=0; i<extraHeadMaterials.size();i++)
-			{
-				if (extraHeadMaterials.get(i).textureID == -1)	extraHeadMaterials.get(i).loadTexture();
+			{	
+				if (extraHeadMaterials.get(i).textureID == -1)	extraHeadMaterials.get(i).loadTexture();				
 			}
-
+			
 			//Log.e(TAG, "this works too");
 		}
 		/**
-		 * Renders the Face model
-
+		 * Renders the Face model 
+		 
 		 */
 
 		float testTime = 0;
@@ -1153,7 +1113,7 @@ public class VMAvatar
 			//bind buffers
 	    	// vertex array
 	        GLES20.glVertexAttribPointer(mrm_VertexHandle, 3, GLES20.GL_FLOAT, false,0, teethModel.mVerticesBuffer);		VMShaderUtil.checkGlError("glVertexAttribPointer mrm_VertexHandle");
-	        GLES20.glEnableVertexAttribArray(mrm_VertexHandle);															VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_VertexHandle");
+	        GLES20.glEnableVertexAttribArray(mrm_VertexHandle);															VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_VertexHandle");	        
 	        // normal array
 	        GLES20.glVertexAttribPointer(mrm_NormalHandle, 3, GLES20.GL_FLOAT, false, 0, teethModel.mNormalsBuffer);		VMShaderUtil.checkGlError("glVertexAttribPointer mrm_NormalHandle");
 	        GLES20.glEnableVertexAttribArray(mrm_NormalHandle);															VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_NormalHandle");
@@ -1166,7 +1126,8 @@ public class VMAvatar
 			GLES20.glUniform4f(mfvDiffuseHandle,teethMaterial.matrix[4], teethMaterial.matrix[5], teethMaterial.matrix[6],  teethMaterial.matrix[7]);		VMShaderUtil.checkGlError("glUniform4f mfvDiffuseHandle");
 			GLES20.glUniform4f(mfvSpecularHandle,teethMaterial.matrix[8], teethMaterial.matrix[9], teethMaterial.matrix[10],  teethMaterial.matrix[11]);	VMShaderUtil.checkGlError("glUniform4f mfvSpecularHandle");
 			GLES20.glUniform1f(mfSpecularPowerHandle, teethMaterial.matrix[12]);																			VMShaderUtil.checkGlError("glUniform1f mfSpecularPowerHandle");
-
+			
+				
 			// turn on the texture if there is one
 			if (teethMaterial.textureID != -1)
 			{
@@ -1174,13 +1135,13 @@ public class VMAvatar
 				GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 				GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, teethMaterial.textureID);
 				GLES20.glUniform1i(miTexturedHandle, 1);
-
+				
 			}
 			else
 				GLES20.glUniform1i(miTexturedHandle, 0);
 			//draw models
 			GLES20.glDrawElements(GLES20.GL_TRIANGLES,teethModel.mIndexBuffer.capacity(), GLES20.GL_UNSIGNED_SHORT, teethModel.mIndexBuffer);		VMShaderUtil.checkGlError("glDrawElements");
-
+			
 		}
 
 		private void renderTongue()
@@ -1218,9 +1179,9 @@ public class VMAvatar
 			GLES20.glDrawElements(GLES20.GL_TRIANGLES,tongueModel.mIndexBuffer.capacity(), GLES20.GL_UNSIGNED_SHORT, tongueModel.mIndexBuffer);		VMShaderUtil.checkGlError("glDrawElements");
 
 		}
-
+		
 		/**
-		 * Renders the models from the extra models group
+		 * Renders the models from the extra models group 
 		 */
 		private void renderExtraModels()
 		{
@@ -1230,33 +1191,33 @@ public class VMAvatar
 				//bind buffers
 		    	// vertex array
 		        GLES20.glVertexAttribPointer(mrm_VertexHandle, 3, GLES20.GL_FLOAT, false,0, extraHeadModels.get(i).mVerticesBuffer);		VMShaderUtil.checkGlError("glVertexAttribPointer mrm_VertexHandle");
-		        GLES20.glEnableVertexAttribArray(mrm_VertexHandle);																			VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_VertexHandle");
+		        GLES20.glEnableVertexAttribArray(mrm_VertexHandle);																			VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_VertexHandle");	        
 		        // normal array
 		        GLES20.glVertexAttribPointer(mrm_NormalHandle, 3, GLES20.GL_FLOAT, false, 0,  extraHeadModels.get(i).mNormalsBuffer);		VMShaderUtil.checkGlError("glVertexAttribPointer mrm_NormalHandle");
 		        GLES20.glEnableVertexAttribArray(mrm_NormalHandle);																			VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_NormalHandle");
 		        // UV array
 		        GLES20.glVertexAttribPointer(mrm_TexCoord0Handle, 2, GLES20.GL_FLOAT, false, 0,  extraHeadModels.get(i).mTexCoordsBuffer);	VMShaderUtil.checkGlError("glVertexAttribPointer mrm_TexCoord0Handle");
 				GLES20.glEnableVertexAttribArray(mrm_TexCoord0Handle);
-
+				
 				//bind material, textures
-				GLES20.glUniform4f(mfvAmbientHandle,	 extraHeadMaterials.get(i).matrix[0], extraHeadMaterials.get(i).matrix[1], extraHeadMaterials.get(i).matrix[2],  extraHeadMaterials.get(i).matrix[3]);		VMShaderUtil.checkGlError("glUniform4f mfvAmbientHandle");
-				GLES20.glUniform4f(mfvDiffuseHandle,	 extraHeadMaterials.get(i).matrix[4], extraHeadMaterials.get(i).matrix[5], extraHeadMaterials.get(i).matrix[6],  extraHeadMaterials.get(i).matrix[7]);		VMShaderUtil.checkGlError("glUniform4f mfvDiffuseHandle");
-				GLES20.glUniform4f(mfvSpecularHandle,	 extraHeadMaterials.get(i).matrix[8], extraHeadMaterials.get(i).matrix[9], extraHeadMaterials.get(i).matrix[10],  extraHeadMaterials.get(i).matrix[11]);	VMShaderUtil.checkGlError("glUniform4f mfvSpecularHandle");
+				GLES20.glUniform4f(mfvAmbientHandle,	 extraHeadMaterials.get(i).matrix[0], extraHeadMaterials.get(i).matrix[1], extraHeadMaterials.get(i).matrix[2],  extraHeadMaterials.get(i).matrix[3]);		VMShaderUtil.checkGlError("glUniform4f mfvAmbientHandle");		
+				GLES20.glUniform4f(mfvDiffuseHandle,	 extraHeadMaterials.get(i).matrix[4], extraHeadMaterials.get(i).matrix[5], extraHeadMaterials.get(i).matrix[6],  extraHeadMaterials.get(i).matrix[7]);		VMShaderUtil.checkGlError("glUniform4f mfvDiffuseHandle");		
+				GLES20.glUniform4f(mfvSpecularHandle,	 extraHeadMaterials.get(i).matrix[8], extraHeadMaterials.get(i).matrix[9], extraHeadMaterials.get(i).matrix[10],  extraHeadMaterials.get(i).matrix[11]);	VMShaderUtil.checkGlError("glUniform4f mfvSpecularHandle");		
 				GLES20.glUniform1f(mfSpecularPowerHandle,extraHeadMaterials.get(i).matrix[12]);																														VMShaderUtil.checkGlError("glUniform1f mfSpecularPowerHandle");
 
 				GLES20.glUniform3f(mfvEyeTranslationHandle, 0.0f, 0.0f, 0.0f);
 
 				// turn on the texture if there is one
-				if (extraHeadMaterials.get(i).textureID != -1 )
+				if (extraHeadMaterials.get(i).textureID != -1 ) 
 				{
-
+					
 					GLES20.glEnableVertexAttribArray(mrm_TexCoord0Handle);
 					GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 					GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, extraHeadMaterials.get(i).textureID);
 					GLES20.glUniform1i(miTexturedHandle, 1);
-
+					
 				}
-				else
+				else				
 					GLES20.glUniform1i(miTexturedHandle, 0);
 
 				if (extraHeadMaterials.get(i).bumpID != -1)
@@ -1290,10 +1251,8 @@ public class VMAvatar
 	        // bind the transform matrices
 	        GLES20.glUniformMatrix4fv(mmatViewProjectionHandle, 1, false, MVP, 0);							VMShaderUtil.checkGlError("glUniformMatrix4fv mmatViewProjectionHandle");
 	        GLES20.glUniformMatrix4fv(mmatViewProjectionInverseTransposeHandle, 1, false, MVP_inv_t, 0);	VMShaderUtil.checkGlError("glUniformMatrix4fv mmatViewProjectionInverseTransposeHandle");
-            Log.d("sdadsa", GlobalHeadNoddingValue + "");
-	        GLES20.glUniform1f(mfHeadNoddingAngleHandle, GlobalHeadNoddingValue);
 
-            //draw Face
+			//draw Face
 	        renderFace();
 
 	        //draw the mouth
@@ -1303,7 +1262,6 @@ public class VMAvatar
 	        //draw extraModels
 	        renderExtraModels();
 
-			setEyeRandomRotation();
 	        //mEye.rotation[0]=rotation[0]+rotationOffset[0];
 			//mEye.rotation[1]=rotation[1]+rotationOffset[1];
 	        if(followEyes)
@@ -1315,7 +1273,7 @@ public class VMAvatar
 			mEye.render(MVP);
 
 		}
-
+		
 	}
 	
 	/**
@@ -1507,7 +1465,7 @@ public class VMAvatar
 		
 		/**keyframe animation manager.
 		 * @see KeyFramedAnimation*/
-		public KeyFramedAnimation animEngine = new KeyFramedAnimation();
+		public KeyFramedAnimation animEngine=new KeyFramedAnimation();
 
 		/**Procedural blinking engine
 		 * @see Blinker*/
@@ -1774,8 +1732,8 @@ public class VMAvatar
 		public void addKey(int time, FacePose keyPose)
 		{
 			KeyFrame key = new KeyFrame();
-			key.time = time;
-			key.pose = keyPose;
+			key.time= time;
+			key.pose=keyPose;			
 			keyframes.add(key);
 			Collections.sort(keyframes, new KeyFrameComparator() ); //sort with respect to time			
 			if(lastFrame < time) lastFrame=time;			
@@ -1791,10 +1749,9 @@ public class VMAvatar
 			for(int i=0; i<animKeys.size(); i++)
 			{
 				KeyFrame key = new KeyFrame();
-				key.time = animKeys.get(i).time;
-				key.pose = animKeys.get(i).pose;
-				key.noddingValue = animKeys.get(i).noddingValue;
-				keyframes.add(key);
+				key.time= animKeys.get(i).time;
+				key.pose=animKeys.get(i).pose;			
+				keyframes.add(key);			
 				Collections.sort(keyframes, new KeyFrameComparator() ); //sort with respect to time			
 				if(lastFrame < key.time) lastFrame=key.time;
 			}
@@ -1863,11 +1820,7 @@ public class VMAvatar
 
 				float weight= (float)(audioTiming - keyframes.get(currentIdx).time)/(float)( keyframes.get(currentIdx+1).time- keyframes.get(currentIdx).time);
 				facePose = smoothStep(  keyframes.get(currentIdx).pose, keyframes.get(currentIdx+1).pose, weight );
-                float headNoddingValue = smoothStep(  keyframes.get(currentIdx).noddingValue, keyframes.get(currentIdx+1).noddingValue, weight );
-//                Log.d("asddsadsad", headNoddingValue + "  no1");
-//                Log.d("asddsadsad", keyframes.get(1).noddingValue + "   no2");
 				setFacePose(facePose);
-                headNod(headNoddingValue);
 			}
 
 			if(run_blend)
@@ -1911,11 +1864,6 @@ public class VMAvatar
 			
 			return interPose;
 		}
-
-        private float smoothStep(float a, float b, float weight)
-        {
-            return weight * a + (1 - weight) * b;
-        }
 
 		private FacePose smoothStep(FacePose curPose, float allWeights, float weight)
 		{
