@@ -14,5 +14,7 @@ public class KeyFrame
 	 * @see FacePose
 	 */
 	public FacePose pose;
+
+	public float noddingValue;
 }
 
