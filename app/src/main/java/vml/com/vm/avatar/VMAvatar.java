@@ -105,7 +105,7 @@ public class VMAvatar
     /**Camera position vector*/
 	//private float[] mfvEyePosition = {0,0,-5};
 	private float[] mfvEyePosition = {0,0,-50};
-	
+
 	//Shader variables	///////////////////////////////////////////////////
 	/** compiled shader program handle*/
 	private int mProgram;	
@@ -120,13 +120,14 @@ public class VMAvatar
 	private int mmatViewProjectionInverseTransposeHandle;
 	private int mfvLightPositionHandle;    
 	private int mfvEyePositionHandle;
+	private int mfvEyeRotationHandle;
 	private int mfvAmbientHandle;
 	private int mfvDiffuseHandle;
 	private int mfvSpecularHandle;
 	private int mfSpecularPowerHandle;
 	private int mfTestTimeHandle;
     private int mfvEyeTranslationHandle;
-    private int miIsEyeHandle;
+    private int miIndexHandle;
 	private int mfHeadNoddingAngleHandle;
 	///////////////////////////////////////////////////////////////////////
 	
@@ -757,8 +758,9 @@ public class VMAvatar
 
         mfTestTimeHandle = GLES20.glGetUniformLocation(mProgram, "iTime");
         mfvEyeTranslationHandle = GLES20.glGetUniformLocation(mProgram, "fvEyeTranslation");
-        miIsEyeHandle = GLES20.glGetUniformLocation(mProgram, "iIsEye");
+        miIndexHandle = GLES20.glGetUniformLocation(mProgram, "iIndex");
 		mfHeadNoddingAngleHandle = GLES20.glGetUniformLocation(mProgram, "fHeadNoddingAngle");
+		mfvEyeRotationHandle = GLES20.glGetUniformLocation(mProgram, "fvEyeRotation");
     }
 
 	/**
@@ -1034,7 +1036,7 @@ public class VMAvatar
 			for(int i = 0; i < 2; i++){
 				currentEyeRotation[i] += (desiredEyeRotation[i] - currentEyeRotation[i]) * 0.4f;
 			}
-			mEye.setRotation(currentEyeRotation);
+			//mEye.setRotation(currentEyeRotation);
 			if(tempElapsedTime > interval) {
 				tempElapsedTime = 0f;
 				for(int i = 0; i < 2; i++){
@@ -1093,7 +1095,6 @@ public class VMAvatar
 		{
 			testTime++;
 			GLES20.glUniform1f(mfTestTimeHandle, testTime);
-            GLES20.glUniform1i(miIsEyeHandle, 0);
 
 
 			//bind buffers
@@ -1266,7 +1267,6 @@ public class VMAvatar
 					GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, extraHeadMaterials.get(i).bumpID);
 					GLES20.glUniform1i(mTextureUniformHandle, 1);
 				}
-                GLES20.glUniform1i(miIsEyeHandle, 0);
 				GLES20.glDrawElements(GLES20.GL_TRIANGLES,extraHeadModels.get(i).mIndexBuffer.capacity(), GLES20.GL_UNSIGNED_SHORT, extraHeadModels.get(i).mIndexBuffer);		VMShaderUtil.checkGlError("glDrawElements");
 			}
 		}
@@ -1294,6 +1294,8 @@ public class VMAvatar
 	        GLES20.glUniform1f(mfHeadNoddingAngleHandle, GlobalHeadNoddingValue);
 
             //draw Face
+			GLES20.glUniform1i(miIndexHandle, 0);
+			GLES20.glUniform3f(mfvEyeRotationHandle, 0, 0, 0);			VMShaderUtil.checkGlError("glUniform3f mfvEyePositionHandle");
 	        renderFace();
 
 	        //draw the mouth
@@ -1312,6 +1314,8 @@ public class VMAvatar
 				mEye.rotation[1]*=-1;
 			}
 			//draw Eye
+			GLES20.glUniform3f(mfvEyeRotationHandle, currentEyeRotation[0], currentEyeRotation[1], currentEyeRotation[2]);			VMShaderUtil.checkGlError("glUniform3f mfvEyePositionHandle");
+			GLES20.glUniform1i(miIndexHandle, 1);
 			mEye.render(MVP);
 
 		}
@@ -1426,7 +1430,6 @@ public class VMAvatar
 			}
 
 
-            GLES20.glUniform1i(miIsEyeHandle, 1);
 
 			//LEFT EYE///////////////////////////////////////////////////////////////////////////////////////
 			//apply local transform
