@@ -1179,6 +1179,15 @@ public class VMAvatar
 			}
 			else
 				GLES20.glUniform1i(miTexturedHandle, 0);
+
+			if (teethMaterial.bumpID != -1)
+			{
+				int mTextureUniformHandle = GLES20.glGetUniformLocation(mProgram, "bumpMap");
+				GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
+				GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, teethMaterial.bumpID);
+				GLES20.glUniform1i(mTextureUniformHandle, 1);
+			}
+
 			//draw models
 			GLES20.glDrawElements(GLES20.GL_TRIANGLES,teethModel.mIndexBuffer.capacity(), GLES20.GL_UNSIGNED_SHORT, teethModel.mIndexBuffer);		VMShaderUtil.checkGlError("glDrawElements");
 
@@ -1290,7 +1299,6 @@ public class VMAvatar
 	        // bind the transform matrices
 	        GLES20.glUniformMatrix4fv(mmatViewProjectionHandle, 1, false, MVP, 0);							VMShaderUtil.checkGlError("glUniformMatrix4fv mmatViewProjectionHandle");
 	        GLES20.glUniformMatrix4fv(mmatViewProjectionInverseTransposeHandle, 1, false, MVP_inv_t, 0);	VMShaderUtil.checkGlError("glUniformMatrix4fv mmatViewProjectionInverseTransposeHandle");
-            Log.d("sdadsa", GlobalHeadNoddingValue + "");
 	        GLES20.glUniform1f(mfHeadNoddingAngleHandle, GlobalHeadNoddingValue);
 
             //draw Face

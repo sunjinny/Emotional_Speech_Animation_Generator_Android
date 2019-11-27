@@ -22,7 +22,7 @@ public class VMBOModel
 	/**Positions for rendering*/
 	public FloatBuffer mVerticesBuffer	= null;		
 	/**Normals for rendering*/
-	public FloatBuffer mNormalsBuffer 	= null;		
+	public FloatBuffer mNormalsBuffer 	= null;
 	/**UV texture coordinates for rendering*/
 	public FloatBuffer mTexCoordsBuffer= null;		
 	/**Face indices for rendering*/

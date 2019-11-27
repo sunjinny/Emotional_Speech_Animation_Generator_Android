@@ -19,6 +19,7 @@ varying vec2 Texcoord;
 varying vec3 Normal;
 varying vec3 FragPos;
 varying vec3 ViewDir;
+varying float normalA;
 
 vec4 rotate(vec4 p, vec3 angle){
     float A = angle.x;
@@ -68,7 +69,7 @@ void main( void )
 
     ecPosition = translatePos(ecPosition, bonePosition);
     ecPosition = translatePos(ecPosition, fvEyeTranslation);
-    ecPosition = rotate(ecPosition, vec3(sin(iTime) * weight, 0, 0));
+    ecPosition = rotate(ecPosition, vec3(sin(iTime * 0.1) * weight, 0, 0));
     //ecPosition = rotate(ecPosition, vec3(fHeadNoddingAngle * weight, 0, 0));
     ecPosition = translatePos(ecPosition, -fvEyeTranslation);
     ecPosition = translatePos(ecPosition, -bonePosition);
@@ -84,11 +85,10 @@ void main( void )
 
     ViewDir = fvEyePosition - fvObjectPosition.xyz;
 
-    vec3 newNormal = rotateX(rm_Normal.xyz, fHeadNoddingAngle * weight, 0.0);
+    vec4 newNormal = rotate(vec4(rm_Normal.xyz, 0.0), vec3(sin(iTime * 0.1) * weight, 0, 0));
 
-    newNormal = (matViewProjection * vec4(newNormal, 0.0)).xyz;
+    newNormal.xyz = (matViewProjection * newNormal).xyz;
 
 
-
-    Normal =  newNormal;
+    Normal =  newNormal.xyz;
 }
