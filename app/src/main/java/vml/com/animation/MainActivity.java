@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity { //for test
                 AssetManager assetManager = getResources().getAssets(); //for test
                 try{
                     //TODO: setAnimation with the animation_data from the server (to InputStream)
-                    avatarAnimation.setAnimation(assetManager.open("animation_data.xml"));
+                    avatarAnimation.setAnimation(assetManager.open("animation_data_man.xml"));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

@@ -14,7 +14,9 @@ uniform vec4 fvSpecular;
 uniform vec4 fvDiffuse;
 uniform float fSpecularPower;
 uniform vec3 fvLightPosition[2];
-uniform int iIsEye;
+//index == 0 : body;
+//index == 1 : eye
+uniform int iIndex;
 
 uniform sampler2D baseMap;
 uniform sampler2D bumpMap;
@@ -29,6 +31,7 @@ varying vec3 ViewDir;
 
 
 const float PI = 3.14159265359;
+
 // ----------------------------------------------------------------------------
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
@@ -108,8 +111,8 @@ void main( void )
     vec3 albedo = pow(texture2D(baseMap, Texcoord).xyz, vec3(2.2));
     vec3 metallic = vec3(0.2);
     float roughness = 0.0;
-    if(iIsEye == 1){
-        roughness = 0.3;
+    if(iIndex == 1){
+        roughness = 0.2;
     }else{
         roughness = clamp(hash13(albedo) * 0.8, 0.5, 1.0);
     }
