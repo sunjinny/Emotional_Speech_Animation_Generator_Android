@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<avatar name="Data/Girl">
+	<head>
+		<face model="Data/girlFace.bob" material="Data/girlFace.mtl"/>
+		<teeth model="Data/girlTeeth.bob" material="Data/girlTeeth.mtl"/>
+		<tongue model="Data/girlTongue.bob" material="Data/girlTongue.mtl"/>
+		<extraHeadModels>
+			<model model="Data/girl_upperTeeth.bob" material="Data/girl_upperTeeth.mtl"/>
+			<model model="Data/girl_cloth.bob" material="Data/girlCloth.mtl"/>
+			<model model="Data/hair_front.bob" material="Data/girlHair.mtl"/>
+			<model model="Data/hair_center.bob" material="Data/girlHair_back.mtl"/>
+			<model model="Data/cap.bob" material="Data/girl_cap.mtl"/>
+			<model model="Data/under_dango_1.bob" material="Data/girlHair_back.mtl"/>
+			<model model="Data/under_dango_2.bob" material="Data/girlHair_back.mtl"/>
+			<model model="Data/under_dango_3.bob" material="Data/girlHair_back.mtl"/>
+			<model model="Data/under_dango_4.bob" material="Data/girlHair_back.mtl"/>
+		</extraHeadModels>
+		<eyes>
+			<eye model="Data/eye.bob" material="Data/girlEye.mtl"/>
+			<leftPos tx="3.291" ty="4.803" tz="6.037" />
+			<rightPos tx="-3.291" ty="4.803" tz="6.037" />
+		</eyes>
+		<blink left="13" right="14"/>
+	</head>
+	<extraGlobalModels> 
+	</extraGlobalModels>
+	<animationList>
+		<animation filename="Data/joy.xml"/>
+		<animation filename="Data/sadness.xml"/>
+		<animation filename="Data/surprise.xml"/>
+	</animationList>
+</avatar>

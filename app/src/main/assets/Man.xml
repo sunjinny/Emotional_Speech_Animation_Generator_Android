@@ -6,6 +6,8 @@
 	<tongue model="Data/manTongue.bob" material="Data/manTongue.mtl"/>
 	<extraHeadModels>
 			<model model="Data/man_upperTeeth.bob" material="Data/man_upperTeeth.mtl"/>
+			<model model="Data/man_cloth.bob" material="Data/manCloth.mtl"/>
+			<model model="Data/man_cap.bob" material="Data/manHair.mtl"/>
 	</extraHeadModels>
 	<eyes>
 		<eye model="Data/manEye.bob" material="Data/manEye.mtl"/>

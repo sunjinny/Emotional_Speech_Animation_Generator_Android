@@ -26,8 +26,8 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
     private float[] mmatModel = 		new float[16];
     private float[] mmatView = 		new float[16];
     private float[] mmatProjection = 	new float[16];
-    //private float[] mfvEyePosition = {0,0,-5};
-	private float[] mfvEyePosition = {0,0,-40};
+    //private float[] mfvEyePosition = {0,0,-40}; // 3rd year
+	private float[] mfvEyePosition = {0,3,-43};
 
   	//public float mScale = 0.1f;
 	public float mScale = 1.0f;
@@ -43,15 +43,18 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
 
     private Context mContext;
 
-    VMAvatar mAvatar;
+    VMAvatar mAvatar_1;
+	VMAvatar mAvatar_2;
 	VMAvatar mAvatarMan;
 	public boolean isMan = false;
+	public int hair_model = 0;
 
     public String currentEmotion="Neutral";
     public String currentViseme ="Neutral";
     public boolean loopVisemes=false;
     public float currentWeight=0;
-    public boolean controlHead=true;
+    public boolean controlHead=false;
+    public boolean touchInterface=false;
     public boolean followEyes=true;
 
     private static FPSCounter fps;
@@ -62,13 +65,16 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
 		fps= new FPSCounter();
 		mContext = context;
 
-		mAvatar=VMAvatarLoader.loadAvatar(context, "Girl.xml");
+		mAvatar_1=VMAvatarLoader.loadAvatar(context, "Girl_1.xml");
+		mAvatar_2=VMAvatarLoader.loadAvatar(context, "Girl_2.xml");
 		mAvatarMan=VMAvatarLoader.loadAvatar(context, "Man.xml");
 
-		mAvatar.initRenderScript();
+		mAvatar_1.initRenderScript();
+		mAvatar_2.initRenderScript();
 		mAvatarMan.initRenderScript();
 
-		mAvatar.enableBlinking(true);
+		mAvatar_1.enableBlinking(true);
+		mAvatar_2.enableBlinking(true);
 		mAvatarMan.enableBlinking(true);
 
 		//mAvatar.enableHeadMotion(true);
@@ -84,7 +90,7 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
 							  public void run()
 							  {
 								   // code runs in a UI(main) thread
-								   String[] keys= mAvatar.getAnimationList();
+								   String[] keys= mAvatar_1.getAnimationList();
 							   }
 						  });
 	                  } catch (final Exception ex){  /*TODO del with exceptions*/  }
@@ -111,19 +117,24 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
 			worldRotation[1]=mAngleX;
 		}
 
-		Matrix.rotateM(mmatModel, 0, worldRotation[0], 1.0f, 0, 0);
-		Matrix.rotateM(mmatModel, 0, worldRotation[1], 0, 1.0f, 0);
-		Matrix.scaleM(mmatModel, 0, mScale,mScale,mScale);//0.2f*(mScale-1.0f), 0.2f*(mScale-1.0f),  0.2f*(mScale-1.0f));
+		if(touchInterface) {
+			Matrix.rotateM(mmatModel, 0, worldRotation[0], 1.0f, 0, 0);
+			Matrix.rotateM(mmatModel, 0, worldRotation[1], 0, 1.0f, 0);
+			Matrix.scaleM(mmatModel, 0, mScale, mScale, mScale);//0.2f*(mScale-1.0f), 0.2f*(mScale-1.0f),  0.2f*(mScale-1.0f));
 
-        if(controlHead) {
-			mAvatar.setHeadRotation(new float[]{mAngleY, mAngleX, 0.0f});
-			mAvatarMan.setHeadRotation(new float[]{mAngleY, mAngleX, 0.0f});
+			if (controlHead) {
+				mAvatar_1.setHeadRotation(new float[]{mAngleY, mAngleX, 0.0f});
+				mAvatar_2.setHeadRotation(new float[]{mAngleY, mAngleX, 0.0f});
+				mAvatarMan.setHeadRotation(new float[]{mAngleY, mAngleX, 0.0f});
+			}
 		}
 
 		if(isMan)
 			mAvatarMan.Render(mmatModel, mmatView, mmatProjection);
-		else
-			mAvatar.Render(mmatModel, mmatView, mmatProjection);
+		else if(hair_model==0)
+			mAvatar_1.Render(mmatModel, mmatView, mmatProjection);
+		else if(hair_model==1)
+			mAvatar_2.Render(mmatModel, mmatView, mmatProjection);
 
         //fps.logFrame("FPS");
 	}
@@ -143,9 +154,10 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
 		GLES20.glClearColor(0.9f, 0.9f, 0.9f, 1.0f);		VMShaderUtil.checkGlError("glClearColor");
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);				VMShaderUtil.checkGlError("GL_DEPTH_TEST");
 
-		Matrix.setLookAtM(mmatView, 0, mfvEyePosition[0], mfvEyePosition[1], mfvEyePosition[2], 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+		Matrix.setLookAtM(mmatView, 0, mfvEyePosition[0], mfvEyePosition[1], mfvEyePosition[2], 0f, 3.0f, 0f, 0f, 1.0f, 0.0f);
 
-		mAvatar.loadTextures(); //loads textures in OpenGL and sets up the shader
+		mAvatar_1.loadTextures(); //loads textures in OpenGL and sets up the shader
+		mAvatar_2.loadTextures(); //loads textures in OpenGL and sets up the shader
 		mAvatarMan.loadTextures(); //loads textures in OpenGL and sets up the shader
 	}
 

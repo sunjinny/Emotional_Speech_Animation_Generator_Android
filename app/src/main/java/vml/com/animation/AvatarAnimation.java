@@ -28,6 +28,7 @@ public class AvatarAnimation {
     private AvatarFragment mFragment;
     private String animName;
     private String gender;
+    private String hair;
     private VMAvatar renderedAvatar;
 
     public AvatarAnimation(AvatarFragment fragment){
@@ -58,13 +59,22 @@ public class AvatarAnimation {
             Element genderEl = (Element) animEl.getElementsByTagName("gender").item(0);
             gender = genderEl.getAttribute("gender");
 
+            Element hairEl = (Element) animEl.getElementsByTagName("hair_model").item(0);
+            hair = hairEl.getAttribute("hair_model");
+
             if(Integer.parseInt(gender) == 30001) {
                 mFragment.mGLView.mRenderer.isMan = true;
                 renderedAvatar = mFragment.mGLView.mRenderer.mAvatarMan;
             }
-            else {
+            else if(Integer.parseInt(hair) == 0) {
                 mFragment.mGLView.mRenderer.isMan = false;
-                renderedAvatar = mFragment.mGLView.mRenderer.mAvatar;
+                mFragment.mGLView.mRenderer.hair_model = 0;
+                renderedAvatar = mFragment.mGLView.mRenderer.mAvatar_1;
+            }
+            else if(Integer.parseInt(hair) == 1) {
+                mFragment.mGLView.mRenderer.isMan = false;
+                mFragment.mGLView.mRenderer.hair_model = 1;
+                renderedAvatar = mFragment.mGLView.mRenderer.mAvatar_2;
             }
 
             List<KeyFrame> keys = new ArrayList<KeyFrame>();
