@@ -856,7 +856,10 @@ public class VMAvatar
 	 */	
 	public void Render(float[] M, float[] V, float P[] )
 	{
-    	//apply the blendshapes to the neutral face
+//		GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+//		GLES20.glEnable(GLES20.GL_BLEND);
+
+		//apply the blendshapes to the neutral face
     	mHead.faceModel.applyBlendShapes();
 
     	//ensure the connected blendshapes between face and mouth
@@ -1143,7 +1146,15 @@ public class VMAvatar
 				GLES20.glUniform1i(mTextureUniformHandle, 1);
 			}
 
+//			if (faceMaterial.normalID != -1)
+//			{
+//				int mTextureUniformHandle = GLES20.glGetUniformLocation(mProgram, "normalMap");
+//				GLES20.glActiveTexture(GLES20.GL_TEXTURE2);
+//				GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, faceMaterial.normalID);
+//				GLES20.glUniform1i(mTextureUniformHandle, 2);
+//			}
 			//draw models
+            GLES20.glUniform1i(miIndexHandle, 3);
 			GLES20.glDrawElements(GLES20.GL_TRIANGLES,faceModel.mIndexBuffer.capacity(), GLES20.GL_UNSIGNED_SHORT, faceModel.mIndexBuffer);		VMShaderUtil.checkGlError("glDrawElements");
 		}
 		/**
@@ -1276,7 +1287,16 @@ public class VMAvatar
 					GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, extraHeadMaterials.get(i).bumpID);
 					GLES20.glUniform1i(mTextureUniformHandle, 1);
 				}
-				GLES20.glDrawElements(GLES20.GL_TRIANGLES,extraHeadModels.get(i).mIndexBuffer.capacity(), GLES20.GL_UNSIGNED_SHORT, extraHeadModels.get(i).mIndexBuffer);		VMShaderUtil.checkGlError("glDrawElements");
+                if (extraHeadMaterials.get(i).normalID != -1)
+                {
+                    int mTextureUniformHandle = GLES20.glGetUniformLocation(mProgram, "normalMap");
+                    GLES20.glActiveTexture(GLES20.GL_TEXTURE2);
+                    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, extraHeadMaterials.get(i).normalID);
+                    GLES20.glUniform1i(mTextureUniformHandle, 2);
+                }
+
+				GLES20.glUniform1i(miIndexHandle, 2);
+                GLES20.glDrawElements(GLES20.GL_TRIANGLES,extraHeadModels.get(i).mIndexBuffer.capacity(), GLES20.GL_UNSIGNED_SHORT, extraHeadModels.get(i).mIndexBuffer);		VMShaderUtil.checkGlError("glDrawElements");
 			}
 		}
 		/**
@@ -1302,11 +1322,11 @@ public class VMAvatar
 	        GLES20.glUniform1f(mfHeadNoddingAngleHandle, GlobalHeadNoddingValue);
 
             //draw Face
-			GLES20.glUniform1i(miIndexHandle, 0);
 			GLES20.glUniform3f(mfvEyeRotationHandle, 0, 0, 0);			VMShaderUtil.checkGlError("glUniform3f mfvEyePositionHandle");
 	        renderFace();
 
-	        //draw the mouth
+			//draw the mouth
+			GLES20.glUniform1i(miIndexHandle, 4);
 	        renderTeeth();
 			renderTongue();
 

@@ -33,6 +33,9 @@ public class VMMaterial
 	public int textureID = -1;
 	/**OpenGL textured ID for the bump map */
 	public int bumpID = -1;
+	/**OpenGL textured ID for the normal map */
+	public int normalID = -1;
+
 	/** vertex array starting index to apply the material */
 	public int vertexIndexStart = -1;
 	/**last vertex array index to apply the material*/
@@ -41,7 +44,9 @@ public class VMMaterial
 	private Bitmap mTexture = null;
 	//**bump map data*/
 	private Bitmap mBump = null;
-	
+	//**normal map data*/
+	private Bitmap mNorm = null;
+
 	
 	/**
 	 * Construct a material with the given data
@@ -54,8 +59,8 @@ public class VMMaterial
 	 * @param texture loaded texture 
 	 * @param bump loaded bump map
 	 */
-	public VMMaterial(String matName, float alpha, float[] ambient, float[] diffuse,		
-		float[] specular, float shininess, Bitmap texture, Bitmap bump) 
+	public VMMaterial(String matName, float alpha, float[] ambient, float[] diffuse,
+		float[] specular, float shininess, Bitmap texture, Bitmap bump, Bitmap norm)
 	{
 		name=matName;
 		
@@ -69,6 +74,7 @@ public class VMMaterial
 		
 		mTexture=texture;
 		mBump=bump;
+		mNorm = norm;
 	}
 	/**
 	 * Construct a default greyish material
@@ -83,7 +89,8 @@ public class VMMaterial
 		float shininess = 10.0f;
 		mTexture = null;
 		mBump = null;
-		
+		mNorm = null;
+
 		matrix = new float[] 
 				{
 					ambient[0], ambient[1], ambient[2], alpha,
@@ -143,6 +150,29 @@ public class VMMaterial
 			mBump.recycle();
 			mBump = null;
 		}
+
+		if (mNorm != null) {
+			int[] textures = new int[1];
+			GLES20.glActiveTexture(GLES20.GL_TEXTURE2);
+			GLES20.glGenTextures(1, textures, 0);
+			normalID = textures[0];
+			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, normalID);
+
+			GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER,
+					GLES20.GL_NEAREST);
+			GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER,
+					GLES20.GL_LINEAR);
+
+			GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S,
+					GLES20.GL_REPEAT);
+			GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T,
+					GLES20.GL_REPEAT);
+
+			GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, mNorm, 0);
+			mNorm.recycle();
+			mNorm = null;
+		}
+
 	}
 	
 }

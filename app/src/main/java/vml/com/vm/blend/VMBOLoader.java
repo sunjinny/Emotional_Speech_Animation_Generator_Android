@@ -44,7 +44,8 @@ class ObjMaterial
 	public Bitmap texture;
 	/** bump map*/
 	public Bitmap bump;
-	
+    public Bitmap norm;
+
 	/**
 	 * Creates a default material
 	 * highly specular greyish material 
@@ -59,6 +60,7 @@ class ObjMaterial
 		this.shininess = 10.0f;
 		this.texture = null;
 		this.bump = null;
+        this.norm = null;
 	}
 	/**
 	 * Creates a material from the given data
@@ -73,7 +75,7 @@ class ObjMaterial
 	 * @param bump load loaded bump map
 	 */
 	public ObjMaterial(String name, float alpha, float[] ambient, float[] diffuse,
-			float[] specular, float shininess, Bitmap texture, Bitmap bump) {
+			float[] specular, float shininess, Bitmap texture, Bitmap bump, Bitmap norm) {
 		super();
 		this.name = name;
 		this.alpha = alpha;
@@ -83,6 +85,7 @@ class ObjMaterial
 		this.shininess = shininess;
 		this.texture = texture;
 		this.bump = bump;
+        this.norm = norm;
 	}
 
 }
@@ -178,7 +181,9 @@ public class VMBOLoader
 					// XXX - TODO - implement multitexturing
 					if (currentMaterial.texture == null)
 					{
-						currentMaterial.texture = BitmapFactory.decodeStream( assetManager.open("Data/"+tokens[1]));
+						BitmapFactory.Options opts = new BitmapFactory.Options();
+						opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
+						currentMaterial.texture = BitmapFactory.decodeStream( assetManager.open("Data/"+tokens[1]), null, opts);
 						if (currentMaterial.texture == null)
 							throw new RuntimeException("Unable to load texture file "+ "Data/"+tokens[1]);
 					}
@@ -190,10 +195,17 @@ public class VMBOLoader
 						if (currentMaterial.bump == null)
 							throw new RuntimeException("Unable to load texture file "+ "Data/"+tokens[1] );
 					}
-				} else 
+				} else if (tokens[0].equals("norm"))
 				{
-					//TODO - we don't support this yet
-				}
+                    if (currentMaterial.norm == null)
+                    {
+                        currentMaterial.norm = BitmapFactory.decodeStream( assetManager.open("Data/"+tokens[1]));
+                        if (currentMaterial.norm == null)
+                            throw new RuntimeException("Unable to load texture file "+ "Data/"+tokens[1] );
+                    }
+				} else {
+                    //TODO - we don't support this yet
+                }
 			}
 		} 
 		catch (IOException e) 
@@ -211,7 +223,7 @@ public class VMBOLoader
 		VMMaterial vmMat = new VMMaterial("material", currentMaterial.alpha,
 										currentMaterial.ambient, currentMaterial.diffuse, 
 										currentMaterial.specular,currentMaterial.shininess,
-										currentMaterial.texture, currentMaterial.bump);
+										currentMaterial.texture, currentMaterial.bump, currentMaterial.norm);
 		return vmMat;
 	}
 	
@@ -253,7 +265,7 @@ public class VMBOLoader
 				
 				reader.read(curStr);				
 				model.BSNames[i]=new String(curStr,"UTF_8");
-				
+
 				//Log.i(TAG,"blendshape "+i+" : "+curStrSize+"  "+model.BSNames[i]);
 			}
 

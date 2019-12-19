@@ -16,10 +16,13 @@ uniform float fSpecularPower;
 uniform vec3 fvLightPosition[2];
 //index == 0 : body;
 //index == 1 : eye
+//index == 2 : hair
+//index == 3 : cloth
 uniform int iIndex;
 
 uniform sampler2D baseMap;
 uniform sampler2D bumpMap;
+uniform sampler2D normalMap;
 
 varying vec2 Texcoord;
 varying vec3 Normal;
@@ -108,7 +111,8 @@ vec3 hash33(vec3 p3)
 
 void main( void )
 {
-    vec3 albedo = pow(texture2D(baseMap, Texcoord).xyz, vec3(2.2));
+    vec4 texture = texture2D(baseMap, Texcoord);
+    vec3 albedo = pow(texture.xyz, vec3(2.2));
     vec3 metallic = vec3(0.2);
     float roughness = 0.0;
     if(iIndex == 1){
@@ -117,7 +121,18 @@ void main( void )
         roughness = clamp(hash13(albedo) * 0.8, 0.5, 1.0);
     }
     vec3 col = vec3(0.0);
+
     vec3 N = normalize(Normal + hash33(albedo * 0.5) * 0.2);
+    //vec3 N = normalize(Normal);
+    //index == 0 : body;
+    //index == 1 : eye
+    //index == 2 : hair
+    //index == 3 : cloth
+    //index == 4 : mouth
+    if(iIndex == 0 || iIndex == 2){
+        //N = normalize((texture2D(normalMap, Texcoord).xyz-0.5)*2.0 + N);
+    }
+
     if(gl_FrontFacing == false)
         N *= -1.0;
     vec3 V = normalize(ViewDir);
@@ -166,19 +181,18 @@ void main( void )
     }
 */
     vec3 L = normalize(-ViewDir + vec3(40.0, 20.0, 30.0));
-    float I = pow(clamp(dot(V, -(L + N * 1.0)), 0.0, 1.0), 8.0) * 0.3;
+    float I = pow(clamp(dot(V, -(L + N * 1.0)), 0.0, 1.0), 16.0) * 0.1;
     float oneDiv = 1.0/255.0;
     vec3 lightCol = vec3(235, 255, 255) * oneDiv;
 
-    col += I * lightCol;
+    //col += I * lightCol;
 
 
     //gamma correction
     col = col / (col + vec3(1.0));
     col = pow(col, vec3(1.0/2.2));
 
-
-   gl_FragColor = vec4(col, 1.0);
+   gl_FragColor = vec4(col, texture.a);
 }
 
 
