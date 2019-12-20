@@ -27,7 +27,7 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
     private float[] mmatView = 		new float[16];
     private float[] mmatProjection = 	new float[16];
     //private float[] mfvEyePosition = {0,0,-40}; // 3rd year
-	private float[] mfvEyePosition = {0,3,-37};
+	private float[] mfvEyePosition = {0,3,-70};
 
   	//public float mScale = 0.1f;
 	public float mScale = 1.0f;
@@ -54,7 +54,7 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
     public boolean loopVisemes=false;
     public float currentWeight=0;
     public boolean controlHead=false;
-    public boolean touchInterface=true;
+    public boolean touchInterface=false;
     public boolean followEyes=true;
 
     private static FPSCounter fps;
@@ -145,7 +145,8 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
 		//Log.i(TAG,"onSurfaceChanged");
 		GLES20.glViewport(0, 0, width, height);
 		float ratio = (float) width / height;
-		Matrix.perspectiveM(mmatProjection, 0, 70.0f, ratio, 1, 100);
+		Matrix.perspectiveM(mmatProjection, 0, 40, ratio, 1, 150);
+		//Matrix.orthoM(mmatProjection, 0, -22 * ratio, 22 * ratio, -22, 22, 1, 150);
 	}
 
 	@Override

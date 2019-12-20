@@ -111,26 +111,27 @@ vec3 hash33(vec3 p3)
 
 void main( void )
 {
+    vec3 debugCol = vec3(0.0);
     vec4 texture = texture2D(baseMap, Texcoord);
     vec3 albedo = pow(texture.xyz, vec3(2.2));
     vec3 metallic = vec3(0.2);
+
     float roughness = 0.0;
     if(iIndex == 1){
         roughness = 0.2;
     }else{
-        roughness = clamp(hash13(albedo) * 0.8, 0.5, 1.0);
+        roughness = clamp(hash13(albedo) * 0.8, 0.6, 1.0);
     }
     vec3 col = vec3(0.0);
 
     vec3 N = normalize(Normal + hash33(albedo * 0.5) * 0.2);
-    //vec3 N = normalize(Normal);
     //index == 0 : body;
     //index == 1 : eye
     //index == 2 : hair
     //index == 3 : cloth
     //index == 4 : mouth
-    if(iIndex == 0 || iIndex == 2){
-        //N = normalize((texture2D(normalMap, Texcoord).xyz-0.5)*2.0 + N);
+    if(iIndex == 2){
+        N = normalize((texture2D(normalMap, Texcoord).xyz-0.5)*2.0 + N);
     }
 
     if(gl_FrontFacing == false)
@@ -143,10 +144,12 @@ void main( void )
     vec3 Lo = vec3(0.0);
     for(int i = 0; i < 2; ++i)
     {
-
         vec3 L = normalize(fvLightPosition[i] - FragPos);
         vec3 H = normalize(V + L);
+        float distance    = length(fvLightPosition[i] - FragPos);
+        float attenuation = 1.0 / (distance * distance);
         vec3 radiance = vec3(4.5 * float(i + 1));
+        //vec3 radiance = vec3(1128.0) * attenuation;
 
 
         // Cook-Torrance BRDF
@@ -158,13 +161,14 @@ void main( void )
         vec3 kD = vec3(1.0) - kS;
         kD *= 1.0 - metallic;
 
-        vec3 numerator    = NDF * G * F;
-        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
-        vec3 specular     = numerator / max(denominator, 0.001);
+        vec3 nominator    = NDF * G * F;
+        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001; // 0.001 to prevent divide by zero.
+        vec3 specular = nominator / denominator;
+
 
         // add to outgoing radiance Lo
         float NdotL = max(dot(N, L), 0.0);
-        Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+        Lo += (kD * albedo / (PI) + specular) * radiance * NdotL;
     }
     vec3 ambient = vec3(0.3) * albedo * 1.0; //* ao;
     col = ambient + Lo;
@@ -193,6 +197,8 @@ void main( void )
     col = pow(col, vec3(1.0/2.2));
 
    gl_FragColor = vec4(col, texture.a);
+   //gl_FragColor = vec4(col*0.0001 + N, texture.a);
+   //gl_FragColor = vec4(col*0.0001 + abs(debugCol), texture.a);
 }
 
 

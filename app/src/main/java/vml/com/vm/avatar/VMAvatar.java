@@ -99,8 +99,8 @@ public class VMAvatar
 	//private float[] mfvLightPosition = {-0.5f,0,-1};
 	//private float[] mfvLightPosition = {-0.15f,-0.15f,1.2f};
     private float[] mfvLightPosition = {
-            100.0f, 100.0f, -150.0f,
-            -100.0f, -30.0f, -50.0f
+            61, 0, -79.0f,
+            -74, 24, -66.0f
     };
     /**Camera position vector*/
 	//private float[] mfvEyePosition = {0,0,-5};
@@ -853,7 +853,7 @@ public class VMAvatar
 	 * @param M Model matrix from the Renderer set the global transform of the avatar 
 	 * @param V View matrix
 	 * @param P Projection matrix
-	 */	
+	 */
 	public void Render(float[] M, float[] V, float P[] )
 	{
 //		GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
@@ -866,6 +866,8 @@ public class VMAvatar
     	doMouthLinks();
     	mHead.teethModel.applyBlendShapes();
 		mHead.tongueModel.applyBlendShapes();
+
+
 
 		useShader();
 
@@ -1303,8 +1305,18 @@ public class VMAvatar
 		 * Renders the models of the Head group
 		 * @param MVP: Model View Projection transform matrix for the head group models
 		 */
+		float time = 0;
+
 		public void render(float[] MVP) //receive the global transform
 		{
+			time += 0.01;
+			float rad = 100;
+			float x = (float)Math.cos(time) * rad;
+			//mfvLightPosition[0] = x;
+			float z = (float)Math.sin(time) * rad;
+			//mfvLightPosition[2] = z;
+			Log.d("ttttttttasedsd", "x = " + x);
+			Log.d("ttttttttasedsd", "z = " + z);
 			//apply local transform
 			Matrix.translateM(MVP, 0, translation[0], translation[1], translation[2]);
 			Matrix.rotateM(MVP, 0, rotationOffset[0]+rotation[0], 1, 0, 0);
