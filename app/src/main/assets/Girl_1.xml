@@ -6,11 +6,9 @@
 		<tongue model="Data/girlTongue.bob" material="Data/girlTongue.mtl"/>
 		<extraHeadModels>
 			<model model="Data/girl_upperTeeth.bob" material="Data/girl_upperTeeth.mtl"/>
-			<model model="Data/girl_cloth.bob" material="Data/girlCloth_2.mtl"/>
+			<model model="Data/girl_cloth.bob" material="Data/girlCloth.mtl"/>
+			<model model="Data/hair_front.bob" material="Data/girlHair.mtl"/>
 			<model model="Data/hair_dango.bob" material="Data/girlHair_back.mtl"/>
-			<model model="Data/band.bob" material="Data/girl_cap.mtl"/>
-			<model model="Data/babyhair.bob" material="Data/girlHair.mtl"/>
-			<model model="Data/hair_frontside.bob" material="Data/girlHair.mtl"/>
 			<model model="Data/hair_center.bob" material="Data/girlHair_back.mtl"/>
 		</extraHeadModels>
 		<eyes>
@@ -20,7 +18,7 @@
 		</eyes>
 		<blink left="13" right="14"/>
 	</head>
-	<extraGlobalModels> 
+	<extraGlobalModels>
 	</extraGlobalModels>
 	<animationList>
 		<animation filename="Data/joy.xml"/>
