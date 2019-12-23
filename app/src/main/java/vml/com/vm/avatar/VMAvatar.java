@@ -1305,18 +1305,9 @@ public class VMAvatar
 		 * Renders the models of the Head group
 		 * @param MVP: Model View Projection transform matrix for the head group models
 		 */
-		float time = 0;
 
 		public void render(float[] MVP) //receive the global transform
 		{
-			time += 0.01;
-			float rad = 100;
-			float x = (float)Math.cos(time) * rad;
-			//mfvLightPosition[0] = x;
-			float z = (float)Math.sin(time) * rad;
-			//mfvLightPosition[2] = z;
-			Log.d("ttttttttasedsd", "x = " + x);
-			Log.d("ttttttttasedsd", "z = " + z);
 			//apply local transform
 			Matrix.translateM(MVP, 0, translation[0], translation[1], translation[2]);
 			Matrix.rotateM(MVP, 0, rotationOffset[0]+rotation[0], 1, 0, 0);
@@ -1907,8 +1898,6 @@ public class VMAvatar
 				float weight= (float)(audioTiming - keyframes.get(currentIdx).time)/(float)( keyframes.get(currentIdx+1).time- keyframes.get(currentIdx).time);
 				facePose = smoothStep(  keyframes.get(currentIdx).pose, keyframes.get(currentIdx+1).pose, weight );
                 float headNoddingValue = smoothStep(  keyframes.get(currentIdx).noddingValue, keyframes.get(currentIdx+1).noddingValue, weight );
-//                Log.d("asddsadsad", headNoddingValue + "  no1");
-//                Log.d("asddsadsad", keyframes.get(1).noddingValue + "   no2");
 				setFacePose(facePose);
                 headNod(headNoddingValue);
 			}
