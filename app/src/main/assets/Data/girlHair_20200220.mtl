@@ -1,0 +1,17 @@
+# Blender MTL File: 'None'
+# Material Count: 1
+newmtl man_faceSG
+#Ka 0.1 0.1 0.05 
+Ka 0.15 0.15 0.15
+#Kd 0.9 0.8 0.8
+Kd 0.8 0.8 0.8
+#Ks 0.13 0.13 0.20
+#Ks 0.26 0.26 0.26
+Ks 0.26 0.26 0.26
+#illum 1
+Ns 8
+#Ns 128
+map_Kd V_hair_diffuseColor_02.jpg
+bump girl_hair_eye_index.jpg
+norm normal_04_normals.jpg
+
