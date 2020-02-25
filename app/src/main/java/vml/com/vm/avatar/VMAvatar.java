@@ -113,6 +113,11 @@ public class VMAvatar
 	private int mrm_VertexHandle;
 	/*Normal array handle*/
 	private int mrm_NormalHandle;
+
+	/*Tangent array handle*/
+	private int mrm_TangentHandle;
+	private static final boolean YES_TAN = true;
+
 	/*UV coordinates array handle*/
 	private int mrm_TexCoord0Handle;	
 	private int miTexturedHandle;
@@ -698,7 +703,16 @@ public class VMAvatar
         if (mrm_NormalHandle == -1) {
             throw new RuntimeException("Could not get attrib location for rm_Normal");
         }
-        mrm_TexCoord0Handle = GLES20.glGetAttribLocation(mProgram, "rm_TexCoord0");
+
+        if(YES_TAN) {
+			mrm_TangentHandle = GLES20.glGetAttribLocation(mProgram, "rm_Tangent");
+			VMShaderUtil.checkGlError("glGetAttribLocation rm_Tangent");
+			if (mrm_TangentHandle == -1) {
+				throw new RuntimeException("Could not get attrib location for rm_Tangent");
+			}
+		}
+
+		mrm_TexCoord0Handle = GLES20.glGetAttribLocation(mProgram, "rm_TexCoord0");
         VMShaderUtil.checkGlError("glGetAttribLocation rm_TexCoord0");
         if (mrm_TexCoord0Handle == -1) {
             throw new RuntimeException("Could not get attrib location for rm_TexCoord0");
@@ -771,14 +785,30 @@ public class VMAvatar
 		//load extra textures
 		for(int i=0; i<extraModels.size();i++)
 		{
+
+
+
+
 			//bind buffers
 	    	// vertex array
-	        GLES20.glVertexAttribPointer(mrm_VertexHandle, 3, GLES20.GL_FLOAT, false,0, extraModels.get(i).mVerticesBuffer);		VMShaderUtil.checkGlError("glVertexAttribPointer mrm_VertexHandle");
-	        GLES20.glEnableVertexAttribArray(mrm_VertexHandle);																			VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_VertexHandle");
+	        GLES20.glVertexAttribPointer(mrm_VertexHandle, 3, GLES20.GL_FLOAT, false,0, extraModels.get(i).mVerticesBuffer);
+	        VMShaderUtil.checkGlError("glVertexAttribPointer mrm_VertexHandle");
+	        GLES20.glEnableVertexAttribArray(mrm_VertexHandle);
+	        VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_VertexHandle");
+
 	        // normal array
 	        GLES20.glVertexAttribPointer(mrm_NormalHandle, 3, GLES20.GL_FLOAT, false, 0,  extraModels.get(i).mNormalsBuffer);		VMShaderUtil.checkGlError("glVertexAttribPointer mrm_NormalHandle");
 	        GLES20.glEnableVertexAttribArray(mrm_NormalHandle);																			VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_NormalHandle");
-	        // UV array
+
+	        if(YES_TAN) {
+				// tangent array
+				GLES20.glVertexAttribPointer(mrm_TangentHandle, 3, GLES20.GL_FLOAT, false, 0, extraModels.get(i).mTangentsBuffer);
+				VMShaderUtil.checkGlError("glVertexAttribPointer mrm_TangentHandle");
+				GLES20.glEnableVertexAttribArray(mrm_TangentHandle);
+				VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_TangentHandle");
+			}
+
+			// UV array
 	        GLES20.glVertexAttribPointer(mrm_TexCoord0Handle, 2, GLES20.GL_FLOAT, false, 0,  extraModels.get(i).mTexCoordsBuffer);	VMShaderUtil.checkGlError("glVertexAttribPointer mrm_TexCoord0Handle");
 			GLES20.glEnableVertexAttribArray(mrm_TexCoord0Handle);
 
@@ -1113,6 +1143,16 @@ public class VMAvatar
 	        VMShaderUtil.checkGlError("glVertexAttribPointer mrm_NormalHandle");
 	        GLES20.glEnableVertexAttribArray(mrm_NormalHandle);
 	        VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_NormalHandle");
+
+	        if(YES_TAN) {
+	        	// tangent array
+				GLES20.glVertexAttribPointer(mrm_TangentHandle, 3, GLES20.GL_FLOAT, false, 0, faceModel.mTangentsBuffer);
+				VMShaderUtil.checkGlError("glVertexAttribPointer mrm_TangentHandle");
+				GLES20.glEnableVertexAttribArray(mrm_TangentHandle);
+				VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_TangentHandle");
+			}
+
+
 	        // UV array
 	        GLES20.glVertexAttribPointer(mrm_TexCoord0Handle, 2, GLES20.GL_FLOAT, false, 0, faceModel.mTexCoordsBuffer);
 	        VMShaderUtil.checkGlError("glVertexAttribPointer mrm_TexCoord0Handle");
@@ -1171,7 +1211,16 @@ public class VMAvatar
 	        // normal array
 	        GLES20.glVertexAttribPointer(mrm_NormalHandle, 3, GLES20.GL_FLOAT, false, 0, teethModel.mNormalsBuffer);		VMShaderUtil.checkGlError("glVertexAttribPointer mrm_NormalHandle");
 	        GLES20.glEnableVertexAttribArray(mrm_NormalHandle);															VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_NormalHandle");
-	        // UV array
+
+	        if(YES_TAN) {
+				// tangent array
+				GLES20.glVertexAttribPointer(mrm_TangentHandle, 3, GLES20.GL_FLOAT, false, 0, teethModel.mTangentsBuffer);
+				VMShaderUtil.checkGlError("glVertexAttribPointer mrm_TangentHandle");
+				GLES20.glEnableVertexAttribArray(mrm_TangentHandle);
+				VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_TangentHandle");
+			}
+
+			// UV array
 	        GLES20.glVertexAttribPointer(mrm_TexCoord0Handle, 2, GLES20.GL_FLOAT, false, 0, teethModel.mTexCoordsBuffer);	VMShaderUtil.checkGlError("glVertexAttribPointer mrm_TexCoord0Handle");
 			GLES20.glEnableVertexAttribArray(mrm_TexCoord0Handle);														VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_TexCoord0Handle");
 
@@ -1215,6 +1264,15 @@ public class VMAvatar
 			// normal array
 			GLES20.glVertexAttribPointer(mrm_NormalHandle, 3, GLES20.GL_FLOAT, false, 0, tongueModel.mNormalsBuffer);		VMShaderUtil.checkGlError("glVertexAttribPointer mrm_NormalHandle");
 			GLES20.glEnableVertexAttribArray(mrm_NormalHandle);															VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_NormalHandle");
+
+			if(YES_TAN) {
+				// tangent array
+				GLES20.glVertexAttribPointer(mrm_TangentHandle, 3, GLES20.GL_FLOAT, false, 0, tongueModel.mTangentsBuffer);
+				VMShaderUtil.checkGlError("glVertexAttribPointer mrm_TangentHandle");
+				GLES20.glEnableVertexAttribArray(mrm_TangentHandle);
+				VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_TangentHandle");
+			}
+
 			// UV array
 			GLES20.glVertexAttribPointer(mrm_TexCoord0Handle, 2, GLES20.GL_FLOAT, false, 0, tongueModel.mTexCoordsBuffer);	VMShaderUtil.checkGlError("glVertexAttribPointer mrm_TexCoord0Handle");
 			GLES20.glEnableVertexAttribArray(mrm_TexCoord0Handle);														VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_TexCoord0Handle");
@@ -1250,6 +1308,10 @@ public class VMAvatar
 			//load extra textures
 			for(int i=0; i<extraHeadModels.size();i++)
 			{
+
+
+
+
 				//bind buffers
 		    	// vertex array
 		        GLES20.glVertexAttribPointer(mrm_VertexHandle, 3, GLES20.GL_FLOAT, false,0, extraHeadModels.get(i).mVerticesBuffer);		VMShaderUtil.checkGlError("glVertexAttribPointer mrm_VertexHandle");
@@ -1257,7 +1319,16 @@ public class VMAvatar
 		        // normal array
 		        GLES20.glVertexAttribPointer(mrm_NormalHandle, 3, GLES20.GL_FLOAT, false, 0,  extraHeadModels.get(i).mNormalsBuffer);		VMShaderUtil.checkGlError("glVertexAttribPointer mrm_NormalHandle");
 		        GLES20.glEnableVertexAttribArray(mrm_NormalHandle);																			VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_NormalHandle");
-		        // UV array
+
+		        if(YES_TAN) {
+					// tangent array
+					GLES20.glVertexAttribPointer(mrm_TangentHandle, 3, GLES20.GL_FLOAT, false, 0, extraHeadModels.get(i).mTangentsBuffer);
+					VMShaderUtil.checkGlError("glVertexAttribPointer mrm_TangentHandle");
+					GLES20.glEnableVertexAttribArray(mrm_TangentHandle);
+					VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_TangentHandle");
+				}
+
+				// UV array
 		        GLES20.glVertexAttribPointer(mrm_TexCoord0Handle, 2, GLES20.GL_FLOAT, false, 0,  extraHeadModels.get(i).mTexCoordsBuffer);	VMShaderUtil.checkGlError("glVertexAttribPointer mrm_TexCoord0Handle");
 				GLES20.glEnableVertexAttribArray(mrm_TexCoord0Handle);
 
@@ -1324,17 +1395,22 @@ public class VMAvatar
 	        GLES20.glUniformMatrix4fv(mmatViewProjectionInverseTransposeHandle, 1, false, MVP_inv_t, 0);	VMShaderUtil.checkGlError("glUniformMatrix4fv mmatViewProjectionInverseTransposeHandle");
 	        GLES20.glUniform1f(mfHeadNoddingAngleHandle, GlobalHeadNoddingValue);
 
-            //draw Face
+
+
+
+			//draw Face
 			GLES20.glUniform3f(mfvEyeRotationHandle, 0, 0, 0);			VMShaderUtil.checkGlError("glUniform3f mfvEyePositionHandle");
 	        renderFace();
+
+			//draw extraModels
+			renderExtraModels();
+
 
 			//draw the mouth
 			GLES20.glUniform1i(miIndexHandle, 4);
 	        renderTeeth();
 			renderTongue();
 
-	        //draw extraModels
-	        renderExtraModels();
 
 			setEyeRandomRotation();
 	        //mEye.rotation[0]=rotation[0]+rotationOffset[0];
@@ -1430,6 +1506,15 @@ public class VMAvatar
 	        // normal array
 	        GLES20.glVertexAttribPointer(mrm_NormalHandle, 3, GLES20.GL_FLOAT, false, 0, eyeModel.mNormalsBuffer);		VMShaderUtil.checkGlError("glVertexAttribPointer mrm_NormalHandle");
 	        GLES20.glEnableVertexAttribArray(mrm_NormalHandle);															VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_NormalHandle");
+
+	        if(YES_TAN) {
+				// tangent array
+				GLES20.glVertexAttribPointer(mrm_TangentHandle, 3, GLES20.GL_FLOAT, false, 0, eyeModel.mTangentsBuffer);
+				VMShaderUtil.checkGlError("glVertexAttribPointer mrm_TangentHandle");
+				GLES20.glEnableVertexAttribArray(mrm_TangentHandle);
+				VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_TangentHandle");
+			}
+
 	        // UV array
 	        GLES20.glVertexAttribPointer(mrm_TexCoord0Handle, 2, GLES20.GL_FLOAT, false, 0, eyeModel.mTexCoordsBuffer);	VMShaderUtil.checkGlError("glVertexAttribPointer mrm_TexCoord0Handle");
 			GLES20.glEnableVertexAttribArray(mrm_TexCoord0Handle);														VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_TexCoord0Handle");

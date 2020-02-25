@@ -16,6 +16,7 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.opengl.GLES20;
 import android.util.Log;
 
 import vml.com.vm.utils.VMMaterial;
@@ -226,7 +227,31 @@ public class VMBOLoader
 										currentMaterial.texture, currentMaterial.bump, currentMaterial.norm);
 		return vmMat;
 	}
-	
+
+	private static float[] subtract(float[] arr1, float[] arr2)
+	{
+		int len = arr1.length;
+		float[] val = new float[len];
+		for(int i = 0; i < len; i++) {
+			val[i] = arr1[i] - arr2[i];
+		}
+		return val;
+	}
+
+	private static float[] normalize(float[] arr){
+		int len = arr.length;
+		float[] val = new float[len];
+		float sum = 0.0f;
+		for(int i = 0; i < len; i++) {
+			sum += (arr[i] * arr[i]);
+		}
+		sum = (float)Math.sqrt(sum);
+		for(int i = 0; i < len; i++) {
+			val[i] = arr[i] / sum;
+		}
+		return val;
+	}
+
 	/**
 	 * Loads a BO model from a (.bob) file
 	 * @param ctx application context
@@ -286,10 +311,13 @@ public class VMBOLoader
 				float val= reader.readFloat();
 				model.mVerticesBuffer.put(val);
 				//Neutral Face blending vertices ( up to nBlendVertices x 3)
-				if(i<model.NVertices.length)
-					model.NVertices[i]=val;
+				if(i < model.NVertices.length) {
+					model.NVertices[i] = val;
+				}
 				
 			}
+
+
 
 			//Normals Buffer
 			ByteBuffer nbb = ByteBuffer.allocateDirect(model.nVtx*3*BytesPerFloat);
@@ -311,6 +339,19 @@ public class VMBOLoader
 				model.mTexCoordsBuffer.put(val);			
 			}
 
+			//Tangents Buffer//////////////////////////////////////
+			ByteBuffer tanbb = ByteBuffer.allocateDirect(model.nVtx * 3 * BytesPerFloat); // nVertex * 3 dimension * 4 (size of Float)
+			tanbb.order(ByteOrder.nativeOrder());
+			model.mTangentsBuffer = tanbb.asFloatBuffer();
+
+//			for (int i = 0; i < 3 * model.nVtx; i+=3)
+//			{
+//				float val = 1.0f;
+//				model.mTangentsBuffer.put(1.0f);
+//				model.mTangentsBuffer.put(0.5f);
+//				model.mTangentsBuffer.put(0.5f);
+//			}
+
 			//Indices Buffer
 			ByteBuffer ibb = ByteBuffer.allocateDirect(model.nFcs*3*BytesPerShort);
 			ibb.order(ByteOrder.nativeOrder());
@@ -321,6 +362,184 @@ public class VMBOLoader
 				model.mIndexBuffer.put(val);			
 			}
 
+			Log.d("size of array: ", model.nFcs + "," + model.nVtx);
+
+
+			// Index 순서대로 vertex position으로 저장한거.
+			float[] orderedX = new float[model.nVtx];
+			float[] orderedY = new float[model.nVtx];
+			float[] orderedZ = new float[model.nVtx];
+
+			float[] orderedTanX = new float[model.nVtx];
+			float[] orderedTanY = new float[model.nVtx];
+			float[] orderedTanZ = new float[model.nVtx];
+
+/*
+			for(int face_i = 0; face_i < 3 * model.nFcs; face_i++)
+			{
+				int idx = model.mIndexBuffer.get(face_i);
+				orderedX[idx] = 1;
+				orderedY[idx] = 1;
+				orderedZ[idx] = 1;
+			}
+*/
+
+			for(int face_i = 0; face_i < 3 * model.nFcs; face_i += 3)
+			{
+				int idx0 = model.mIndexBuffer.get(face_i + 0); // pointer to the vertex position X,Y,Z
+				int idx1 = model.mIndexBuffer.get(face_i + 1);
+				int idx2 = model.mIndexBuffer.get(face_i + 2);
+
+				float[] v0 = new float[3];
+				v0[0] = model.mVerticesBuffer.get(3 * idx0 + 0);
+				v0[1] = model.mVerticesBuffer.get(3 * idx0 + 1);
+				v0[2] = model.mVerticesBuffer.get(3 * idx0 + 2);
+				orderedX[idx0] = v0[0];
+				orderedY[idx0] = v0[1];
+				orderedZ[idx0] = v0[2];
+
+				float[] v1 = new float[3];
+				v1[0] = model.mVerticesBuffer.get(3 * idx1 + 0);
+				v1[1] = model.mVerticesBuffer.get(3 * idx1 + 1);
+				v1[2] = model.mVerticesBuffer.get(3 * idx1 + 2);
+				orderedX[idx1] = v1[0];
+				orderedY[idx1] = v1[1];
+				orderedZ[idx1] = v1[2];
+
+				float[] v2 = new float[3];
+				v2[0] = model.mVerticesBuffer.get(3 * idx2 + 0);
+				v2[1] = model.mVerticesBuffer.get(3 * idx2 + 1);
+				v2[2] = model.mVerticesBuffer.get(3 * idx2 + 2);
+				orderedX[idx2] = v2[0];
+				orderedY[idx2] = v2[1];
+				orderedZ[idx2] = v2[2];
+
+				// idx0
+				float[] uv0 = new float[2];
+				uv0[0] = model.mTexCoordsBuffer.get(2 * idx0 + 0);
+				uv0[1] = model.mTexCoordsBuffer.get(2 * idx0 + 1);
+
+				// idx1
+				float[] uv1 = new float[2];
+				uv1[0] = model.mTexCoordsBuffer.get(2 * idx1 + 0);
+				uv1[1] = model.mTexCoordsBuffer.get(2 * idx1 + 1);
+
+				// idx2
+				float[] uv2 = new float[2];
+				uv2[0] = model.mTexCoordsBuffer.get(2 * idx2 + 0);
+				uv2[1] = model.mTexCoordsBuffer.get(2 * idx2 + 1);
+
+				float[] edge1 = subtract(v1, v0);
+				float[] edge2 = subtract(v2, v0);
+				float[] deltaUV1 = subtract(uv1, uv0);
+				float[] deltaUV2 = subtract(uv2, uv0);
+
+				float f = 1.0f / (deltaUV1[0] * deltaUV2[1] - deltaUV2[0] * deltaUV1[1]);
+
+				float[] tangent = new float[3];
+				tangent[0] = f * (deltaUV2[1] * edge1[0] - deltaUV1[1] * edge2[0]);
+				tangent[1] = f * (deltaUV2[1] * edge1[1] - deltaUV1[1] * edge2[1]);
+				tangent[2] = f * (deltaUV2[1] * edge1[2] - deltaUV1[1] * edge2[2]);
+
+				tangent = normalize(tangent);
+
+				orderedTanX[idx0] = (orderedTanX[idx0] + tangent[0]) * 0.5f;
+				orderedTanY[idx0] = (orderedTanY[idx0] + tangent[1]) * 0.5f;
+				orderedTanZ[idx0] = (orderedTanZ[idx0] + tangent[2]) * 0.5f;
+
+				orderedTanX[idx1] = (orderedTanX[idx1] + tangent[0]) * 0.5f;
+				orderedTanY[idx1] = (orderedTanY[idx1] + tangent[1]) * 0.5f;
+				orderedTanZ[idx1] = (orderedTanZ[idx1] + tangent[2]) * 0.5f;
+
+				orderedTanX[idx2] = (orderedTanX[idx2] + tangent[0]) * 0.5f;
+				orderedTanY[idx2] = (orderedTanY[idx2] + tangent[1]) * 0.5f;
+				orderedTanZ[idx2] = (orderedTanZ[idx2] + tangent[2]) * 0.5f;
+
+				// COMPUTE TANGENT //
+				// v0, v1, v2, uv
+			}
+
+			for (int i = 0 ; i < model.nVtx; i++)
+			{
+				model.mTangentsBuffer.put(orderedTanX[i]);
+				model.mTangentsBuffer.put(orderedTanY[i]);
+				model.mTangentsBuffer.put(orderedTanZ[i]);
+			}
+
+/*
+			for (int i = 0; i < model.nVtx - 2; )
+			{
+				int uv_idx_0_u = i * 2 + 0;
+				int uv_idx_0_v = i * 2 + 1;
+				int uv_idx_1_u = i * 2 + 2; // (i +1) *2 + 0
+				int uv_idx_1_v = i * 2 + 3;
+				int uv_idx_2_u = i * 2 + 4;
+				int uv_idx_2_v = i * 2 + 5;
+
+				int vtx_idx_0_x = i * 3 + 0;
+				int vtx_idx_0_y = i * 3 + 1;
+				int vtx_idx_0_z = i * 3 + 2;
+				int vtx_idx_1_x = i * 3 + 3;
+				int vtx_idx_1_y = i * 3 + 4;
+				int vtx_idx_1_z = i * 3 + 5;
+				int vtx_idx_2_x = i * 3 + 6;
+				int vtx_idx_2_y = i * 3 + 7;
+				int vtx_idx_2_z = i * 3 + 8;
+
+				float[] v0 = new float[3];
+				v0[0] = model.mVerticesBuffer.get(vtx_idx_0_x);
+				v0[1] = model.mVerticesBuffer.get(vtx_idx_0_y);
+				v0[2] = model.mVerticesBuffer.get(vtx_idx_0_z);
+
+				float[] v1 = new float[3];
+				v1[0] = model.mVerticesBuffer.get(vtx_idx_1_x);
+				v1[1] = model.mVerticesBuffer.get(vtx_idx_1_y);
+				v1[2] = model.mVerticesBuffer.get(vtx_idx_1_z);
+
+				float[] v2 = new float[3];
+				v2[0] = model.mVerticesBuffer.get(vtx_idx_2_x);
+				v2[1] = model.mVerticesBuffer.get(vtx_idx_2_y);
+				v2[2] = model.mVerticesBuffer.get(vtx_idx_2_z);
+
+				float[] uv0 = new float[2];
+				uv0[0] = model.mTexCoordsBuffer.get(uv_idx_0_u);
+				uv0[1] = model.mTexCoordsBuffer.get(uv_idx_0_v);
+				float[] uv1 = new float[2];
+				uv1[0] = model.mTexCoordsBuffer.get(uv_idx_1_u);
+				uv1[1] = model.mTexCoordsBuffer.get(uv_idx_1_v);
+				float[] uv2 = new float[2];
+				uv2[0] = model.mTexCoordsBuffer.get(uv_idx_2_u);
+				uv2[1] = model.mTexCoordsBuffer.get(uv_idx_2_v);
+
+				float[] edge1 = subtract(v1, v0);
+				float[] edge2 = subtract(v2, v0);
+				float[] deltaUV1 = subtract(uv1, uv0);
+				float[] deltaUV2 = subtract(uv2, uv0);
+
+				float f = 1.0f / (deltaUV1[0] * deltaUV2[1] - deltaUV2[0] * deltaUV1[1]);
+				float[] tangent1 = new float[3];
+				tangent1[0] = f * (deltaUV2[1] * edge1[0] - deltaUV1[1] * edge2[0]);
+				tangent1[1] = f * (deltaUV2[1] * edge1[1] - deltaUV1[1] * edge2[1]);
+				tangent1[2] = f * (deltaUV2[1] * edge1[2] - deltaUV1[1] * edge2[2]);
+
+				tangent1 = normalize(tangent1);
+
+				model.mTangentsBuffer.put(v1[0]);
+				model.mTangentsBuffer.put(v1[1]);
+				model.mTangentsBuffer.put(v1[2]);
+				i++;
+
+				model.mTangentsBuffer.put(v1[0]);
+				model.mTangentsBuffer.put(v1[1]);
+				model.mTangentsBuffer.put(v1[2]);
+				i++;
+
+				model.mTangentsBuffer.put(v1[0]);
+				model.mTangentsBuffer.put(v1[1]);
+				model.mTangentsBuffer.put(v1[2]);
+				i++;
+			}
+*/
 			//BlendShapes
 			//BSverts
 			for (int i = 0; i < model.BSVertices.length; i ++)
@@ -337,6 +556,7 @@ public class VMBOLoader
 			}
 			model.mVerticesBuffer.position(0);
 			model.mNormalsBuffer.position(0);
+			model.mTangentsBuffer.position(0);
 			model.mTexCoordsBuffer.position(0);
 			model.mIndexBuffer.position(0);
 			

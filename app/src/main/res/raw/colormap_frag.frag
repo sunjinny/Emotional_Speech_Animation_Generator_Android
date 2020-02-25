@@ -26,6 +26,8 @@ uniform sampler2D normalMap;
 
 varying vec2 Texcoord;
 varying vec3 Normal;
+varying vec3 Tangent;
+varying vec3 Bitangent;
 varying vec3 FragPos;
 varying vec3 ViewDir;
 
@@ -113,6 +115,10 @@ void main( void )
 {
     vec3 debugCol = vec3(0.0);
     vec4 texture = texture2D(baseMap, Texcoord);
+
+    if(texture.a < 0.00000001){
+        discard;
+    }
     vec3 albedo = pow(texture.xyz, vec3(2.2));
     vec3 metallic = vec3(0.2);
 
@@ -124,18 +130,26 @@ void main( void )
     }
     vec3 col = vec3(0.0);
 
-    vec3 N = normalize(Normal + hash33(albedo * 0.5) * 0.2);
+    vec3 T = normalize(Tangent);
+    vec3 B = normalize(Bitangent);
+    vec3 N = normalize(Normal);
+
+    mat3 TBN = mat3(T, B, N);
     //index == 0 : body;
     //index == 1 : eye
     //index == 2 : hair
     //index == 3 : cloth
     //index == 4 : mouth
     if(iIndex == 2){
-        N = normalize((texture2D(normalMap, Texcoord).xyz-0.5)*2.0 + N);
+        N = texture2D(normalMap, Texcoord).xyz;
+        N = normalize(N * 2.0 - 1.0);
+        N = normalize(TBN * N);
     }
 
-    if(gl_FrontFacing == false)
+    if(gl_FrontFacing == false){
         N *= -1.0;
+    }else{
+    }
     vec3 V = normalize(ViewDir);
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metallic);
@@ -196,7 +210,15 @@ void main( void )
     col = col / (col + vec3(1.0));
     col = pow(col, vec3(1.0/2.2));
 
-   gl_FragColor = vec4(col, texture.a);
+    if(iIndex == 2){
+        //gl_FragColor = vec4(col * Tangent, 1.0);
+        gl_FragColor = vec4(col, texture.a);
+        //gl_FragColor = vec4(col, 1.0);
+    }else{
+        gl_FragColor = vec4(col, 1.0);
+        //gl_FragColor = vec4(col, 1.0);
+    }
+
    //gl_FragColor = vec4(col*0.0001 + N, texture.a);
    //gl_FragColor = vec4(col*0.0001 + abs(debugCol), texture.a);
 }

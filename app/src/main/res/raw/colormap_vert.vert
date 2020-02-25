@@ -13,13 +13,15 @@ uniform int iIndex;
 
 attribute vec4 rm_Vertex;
 attribute vec4 rm_Normal;
+attribute vec4 rm_Tangent;
 attribute vec2 rm_TexCoord0;
 
 varying vec2 Texcoord;
 varying vec3 Normal;
+varying vec3 Tangent;
+varying vec3 Bitangent;
 varying vec3 FragPos;
 varying vec3 ViewDir;
-varying float normalA;
 
 vec4 rotate(vec4 p, vec3 angle){
     float A = angle.x;
@@ -62,6 +64,7 @@ vec4 translatePos(vec4 p, vec3 t){
 void main( void )
 {
     vec4 ecPosition = rm_Vertex;
+
     float weight = texture2D(bumpMap, rm_TexCoord0.xy).z;
     vec3 bonePosition = vec3(0.0, 1.0, 0.0);
 
@@ -86,9 +89,13 @@ void main( void )
     ViewDir = fvEyePosition - fvObjectPosition.xyz;
 
     vec4 newNormal = rotate(vec4(rm_Normal.xyz, 0.0), vec3(fHeadNoddingAngle * weight, 0, 0));
+    vec4 newTangent = rotate(vec4(rm_Tangent.xyz, 0.0), vec3(fHeadNoddingAngle * weight, 0, 0));
 
     newNormal.xyz = (matViewProjection * newNormal).xyz;
+    newTangent.xyz = (matViewProjection * newTangent).xyz;
 
 
     Normal =  newNormal.xyz;
+    Tangent =  newTangent.xyz;
+    Bitangent =  cross(newNormal.xyz, newTangent.xyz);
 }

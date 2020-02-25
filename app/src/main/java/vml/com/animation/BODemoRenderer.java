@@ -18,6 +18,7 @@ import vml.com.vm.avatar.VMAvatar;
 import vml.com.vm.avatar.VMAvatarLoader;
 import vml.com.vm.utils.FPSCounter;
 import vml.com.vm.utils.VMShaderUtil;
+import vml.com.vm.utils.VMShaderUtil;
 
 
 public class BODemoRenderer implements GLSurfaceView.Renderer 
@@ -154,6 +155,14 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
 	{
 		GLES20.glClearColor(0.9f, 0.9f, 0.9f, 1.0f);		VMShaderUtil.checkGlError("glClearColor");
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);				VMShaderUtil.checkGlError("GL_DEPTH_TEST");
+
+		//GLES20.glHint(GLES20.GL_GENERATE_MIPMAP_HINT, GLES20.GL_NICEST);
+		//GLES20.glDisable(GLES20.GL_DEPTH_TEST);
+
+		GLES20.
+
+		//GLES20.glEnable(GLES20.GL_BLEND);
+		//GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
 		Matrix.setLookAtM(mmatView, 0, mfvEyePosition[0], mfvEyePosition[1], mfvEyePosition[2], 0f, 3.0f, 0f, 0f, 1.0f, 0.0f);
 
