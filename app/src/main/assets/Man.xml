@@ -7,7 +7,7 @@
 	<extraHeadModels>
 			<model model="Data/man_upperTeeth.bob" material="Data/man_upperTeeth.mtl"/>
 			<model model="Data/man_cloth.bob" material="Data/manCloth.mtl"/>
-			<model model="Data/man_cap.bob" material="Data/manCap.mtl"/>
+			<model model="Data/man_new_hair.bob" material="Data/girlHair_20200220.mtl"/>
 	</extraHeadModels>
 	<eyes>
 		<eye model="Data/manEye.bob" material="Data/manEye.mtl"/>

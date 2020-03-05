@@ -55,7 +55,7 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
     public boolean loopVisemes=false;
     public float currentWeight=0;
     public boolean controlHead=false;
-    public boolean touchInterface=false;
+    public boolean touchInterface=true;
     public boolean followEyes=true;
 
     private static FPSCounter fps;
@@ -159,7 +159,7 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
 		//GLES20.glHint(GLES20.GL_GENERATE_MIPMAP_HINT, GLES20.GL_NICEST);
 		//GLES20.glDisable(GLES20.GL_DEPTH_TEST);
 
-		GLES20.
+		//GLES20.
 
 		//GLES20.glEnable(GLES20.GL_BLEND);
 		//GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
