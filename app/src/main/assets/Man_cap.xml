@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<avatar name="Data/Man">
+<head>
+	<face model="Data/manFace.bob" material="Data/manFace.mtl"/>
+	<teeth model="Data/manTeeth.bob" material="Data/manTeeth.mtl"/>
+	<tongue model="Data/manTongue.bob" material="Data/manTongue.mtl"/>
+	<extraHeadModels>
+			<model model="Data/man_upperTeeth.bob" material="Data/man_upperTeeth.mtl"/>
+			<model model="Data/man_cloth.bob" material="Data/manCloth.mtl"/>
+			<model model="Data/man_cap.bob" material="Data/manCap.mtl"/>
+	</extraHeadModels>
+	<eyes>
+		<eye model="Data/manEye.bob" material="Data/manEye.mtl"/>
+		<leftPos tx="3.3" ty="5.585" tz="4.9" />
+		<rightPos tx="-3.3" ty="5.585" tz="4.9" />
+	</eyes>
+	<blink left="13" right="14"/>
+</head>
+<extraGlobalModels>
+</extraGlobalModels>
+<animationList>
+</animationList>
+</avatar>

@@ -55,7 +55,7 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
     public boolean loopVisemes=false;
     public float currentWeight=0;
     public boolean controlHead=false;
-    public boolean touchInterface=true;
+    public boolean touchInterface=false;
     public boolean followEyes=true;
 
     private static FPSCounter fps;
