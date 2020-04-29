@@ -19,7 +19,7 @@ This is the part of Emotional Facial Animation module for Flagship project by [V
 
 ## How to Install
 
-- ### Getting started
+- Getting started
   - Clone this repository.
   - Copy the `vml-animation.aar` file into the `app/libs` folder in your Android project.
   - In your `build.gradle` file, add following codes.
