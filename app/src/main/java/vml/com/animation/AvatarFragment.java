@@ -135,17 +135,4 @@ class VMSurfaceView extends GLSurfaceView
         }
         return true;
     }
-//
-//    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
-//        @Override
-//        public boolean onScale(ScaleGestureDetector detector)
-//        {
-//            mRenderer.mScale *= detector.getScaleFactor();
-//            // Don't let the object get too small or too large.
-//            mRenderer.mScale = Math.max(0.5f, Math.min(mRenderer.mScale, 1.5f));
-//            //	Log.i("SCALE", "mSC: "+mRenderer.mScale);
-//            invalidate();
-//            return true;
-//        }
-//    }
 }

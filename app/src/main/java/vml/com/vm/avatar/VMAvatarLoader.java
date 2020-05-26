@@ -148,7 +148,6 @@ public class VMAvatarLoader
 
 			//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			//Animations
-			//Log.i("AniXML","animations");
 			List<String> animFiles= new ArrayList<String>();
 
 			NodeList animListNodes=avatarEl.getElementsByTagName("animationList");

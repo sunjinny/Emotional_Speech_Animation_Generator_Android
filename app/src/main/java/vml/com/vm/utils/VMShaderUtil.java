@@ -157,13 +157,13 @@ public class VMShaderUtil
 		return programHandle;
 	}
 
-	/**
-	 * 
+	 /*
+	 *
 	 * Loads a texture from resources
-	 * 
+	 *
 	 * @param context App Context
 	 * @param resourceId id of the texture file
-	 * 
+	 *
 	 * @return the texture openGL handle
 	 */
 	

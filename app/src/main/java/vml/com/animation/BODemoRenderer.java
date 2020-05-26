@@ -102,9 +102,6 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
 	@Override
 	public void onDrawFrame(GL10 gl)
 	{
-
-
-
 		GLES20.glClear( GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
 
 		//Rotate world + look at screen
@@ -158,8 +155,6 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
 
 		//GLES20.glHint(GLES20.GL_GENERATE_MIPMAP_HINT, GLES20.GL_NICEST);
 		//GLES20.glDisable(GLES20.GL_DEPTH_TEST);
-
-		//GLES20.
 
 		//GLES20.glEnable(GLES20.GL_BLEND);
 		//GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);

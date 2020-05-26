@@ -96,14 +96,11 @@ public class VMAvatar
 	/** Transposed inverse ViewProjection Matrix*/
 	private float[] mmatViewProjection_inv_t = new float[16];
 	/** Light position vector*/
-	//private float[] mfvLightPosition = {-0.5f,0,-1};
-	//private float[] mfvLightPosition = {-0.15f,-0.15f,1.2f};
     private float[] mfvLightPosition = {
             61, 0, -79.0f,
             -74, 24, -66.0f
     };
     /**Camera position vector*/
-	//private float[] mfvEyePosition = {0,0,-5};
 	private float[] mfvEyePosition = {0,0,-50};
 
 	//Shader variables	///////////////////////////////////////////////////
@@ -163,27 +160,7 @@ public class VMAvatar
 		}
 	}
 
-	/**
-	 *
-	 * @param context
-	 * Not considering mouth model
-	 */
-	public VMAvatar(Context context, String faceBobFile,  String faceBobMatFile, String eyeBobFile,	 String eyeMatFile)
-	{
-		mContext=context;
-		blinkLID=0; blinkRID=0;
-		try
-		{
-			mHead= new AvatarHead(faceBobFile, faceBobMatFile,  eyeBobFile,	 eyeMatFile);
-			animator=new Animator();
-			animator.start();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-	}
-	
+
 	/**
 	 * Initiate the setup for using RenderScript.
 	 * It must be called before any call to Render(). 
@@ -205,73 +182,15 @@ public class VMAvatar
  	   animations.keySet().toArray(keys); 	    
 		return keys;		
 	}
-	
-	/**
-	 * get list of emotions
-	 */
-	public String[] getEmotionList()
-	{
-	   String[] keys = new String[emotions.size()];                            	   
- 	   emotions.keySet().toArray(keys); 	    
-		return keys;		
-	}
 
-	/**
-	 *get list of visemes
-	 */
-	public String[] getVisemeList()
-	{
-	   String[] keys = new String[visemes.size()];                            	   
- 	   visemes.keySet().toArray(keys); 	    
-		return keys;		
-	}
-	
-	/**
-	 * Returns the VMBOModel of the face
-	 * @return faceModel VMBOModel 
-	 */	
-	public VMBOModel getFaceModel()
-	{
-		return mHead.getFaceModel();
-	}
-	
-	/**
-	 * Returns the VMBOModel of the mouth
-	 * @return mouthModel VMBOModel 
-	 */	
-	public VMBOModel getTeethModel()
-	{
-		return mHead.getTeethModel();
-	}
-	public VMBOModel getTongueModel()
-	{
-		return mHead.getTongueModel();
-	}
-	
 	/**
 	 * Clears any existing animation from the animation engine
 	 * ie. removes all existing keyframes
 	 */
 	public void clearAnimation(){	animator.animEngine.clearKeys();	}
 	
-	/**
-	 * Adds a keyFrame to the animation engine of an existing emotion in VMAvatar.emotions list) at the specified time
-	 * @param keyTime  time (ms) 
-	 * @param emotionKey name of the emotion
-	 */
-	public void setEmotionKeyFrame(int keyTime, String emotionKey){		animator.animEngine.addKey(keyTime, emotions.get(emotionKey));	}
-	
-	/**
-	 * Adds a key frame to the animation engine from a FacePose
-	 * @param keyTime
-	 * @param keyPose
-	 */
-	
-	public void setKeyFrame(int keyTime, FacePose keyPose)
-	{
-		animator.animEngine.addKey(keyTime, keyPose);
-	}
-	
+
+
 	/**
 	 * Sets up the animation engine to the chosen animation.
 	 * ie. sets all the key frames for the animation choice if it exists in VMAvatar.animations
@@ -309,22 +228,6 @@ public class VMAvatar
         animator.doBlinking(doBlink);
     }
 
-    /**
-	 * Stops the animation engine to play the current setup animation
-	 */
-	public void stopAnimation()
-	{		
-		animator.animEngine.stop();
-	}
-	
-	/**
-	 * pauses or resumes the current animation
-	 */
-	public void tooglePauseAnimation()
-	{		
-		animator.animEngine.togglePause();
-	}
-	
 	/**
 	 * Adds an animation to the existing animation list VMAvatar.animations.
 	 * 
@@ -355,41 +258,6 @@ public class VMAvatar
 	}
 
 	/**
-	 * enables/disables the procedural headMotion
-	 * @param enable enable if true
-	 */
-	public void enableHeadMotion(boolean enable)
-	{
-		animator.doHeadMotion(enable);
-	}
-	
-	/**
-	 * sets the range in degrees for the procedural head motion. 
-	 * A value of 5 means that it will generate motions from -5 degrees to 5 degrees in the chosen axis
-	 * 
-	 * @param pitch range of pitch motion in degrees
-	 * @param yaw range of yaw motion in degrees
-	 * @param roll range of roll motion in degrees
-	 */
-	public void setHeadMotionRange(float pitch, float yaw, float roll)
-	{
-		animator.setHeadMotionRange(pitch, yaw, roll);	
-	}
-	
-	/**
-	 * sets the range in degrees for the procedural head motion. 
-	 * A value of 5 means that it will generate motions from -5 degrees to 5 degrees in the chosen axis
-	 * 
-	 * @param pitch intensity of pitch motion
-	 * @param yaw intensity of yaw motion
-	 * @param roll intensity of roll motion
-	 */
-	public void setHeadMotionSpeed(float pitch, float yaw, float roll)
-	{
-		animator.setHeadMotionSpeed(pitch, yaw, roll);	
-	}
-
-	/**
 	 * Sets the position of each eye with respect to the head coordinate frame.
 	 * Mainly for loading/ setup purposes
 	 * @param eyeTransL: float[] 3d vector of left eye translation x,y,z 
@@ -399,18 +267,7 @@ public class VMAvatar
 	{
 		mHead.setEyeTranslation(eyeTransL, eyeTransR);
 	}
-	
-	/**
-	 * Sets the viewing direction of the eyes.
-	 * front is 0,0,0
-	 * 
-	 * @param eyeRot float[] 3d roation vector rx,ry,rz
-	 */
-	public void setEyeRotation(float[] eyeRot)
-	{
-		mHead.setEyeRotation(eyeRot);
-	}
-	
+
 	/**
 	 * Sets the orientation direction of the head
 	 * front is 0,0,0
@@ -422,88 +279,6 @@ public class VMAvatar
 		mHead.setRotation(headRot);
 	}
 
-	/**
-	 * Modifies the current weights of the avatar blendshapes to the viseme Expression.
-	 * The emotion has to exist within the VMAvatar.visemes list
-	 * 
-	 * @param visemeName name of the phoneme to apply
-	 * @param emotiveWeight  100% in 0 to 1 range of blending between current facial pose and the viseme
-	 */
-	public void setViseme(String visemeName, float emotiveWeight)
-	{
-		FacePose visPose = visemes.get(visemeName);
-		if (visPose != null) 
-		{
-			for(int i=0; i< mHead.faceModel.BSWeights.length; i++)
-			{
-				if(visPose.faceWeights[i]>0.01)
-					mHead.faceModel.BSWeights[i]=emotiveWeight*(mHead.faceModel.BSWeights[i]-visPose.faceWeights[i])+visPose.faceWeights[i];  //a*F + (1-a)V--> aF +V -aV --> a*(F-V)+V
-			}
-			
-			for(int i=0; i< mHead.teethModel.BSWeights.length; i++)
-			{
-				if(visPose.mouthWeights[i]>0.01)
-					mHead.teethModel.BSWeights[i]=emotiveWeight*(mHead.teethModel.BSWeights[i]-visPose.mouthWeights[i])+visPose.mouthWeights[i];  //a*F + (1-a)V--> aF +V -aV --> a*(F-V)+V
-					mHead.tongueModel.BSWeights[i]=emotiveWeight*(mHead.tongueModel.BSWeights[i]-visPose.mouthWeights[i])+visPose.mouthWeights[i];  //a*F + (1-a)V--> aF +V -aV --> a*(F-V)+V
-			}			
-		} 
-		else 
-		{
-		    // No such key so vacation time...
-		}
-	}
-	
-	/**
-	 * blends between a viseme and a emotion expression
-	 * 
-	 * @param visemeName name of the viseme
-	 * @param emotionName name of the emotion
-	 * @param weight  	100% in 0 to 1 range of blending between the emotion and the viseme (1 is full emotion)
-	 */	
-	public void blendVisemeEmotion(String visemeName,String emotionName, float weight)
-	{
-		FacePose visPose = visemes.get(visemeName);
-		FacePose emoPose = emotions.get(emotionName);
-		
-		//Log.d(TAG,"blend weight: "+weight+" "+emotionName +" "+ visemeName);
-		
-		if (visPose != null&&emoPose!=null) 
-		{
-			this.setEmotion(emotionName);
-			
-			for(int i=0; i<mouthRegionBlends.length; i++)
-			{
-				int idx=mouthRegionBlends[i];
-				mHead.faceModel.BSWeights[idx]= weight*emoPose.faceWeights[idx] + (1-weight)*visPose.faceWeights[idx];
-			}
-		}
-		else 
-		{
-		    // No such key so vacation time...
-		}
-		this.doMouthLinks();
-	}
-
-	/**
-	 * sets the current blendshape weights to the desired emotion.
-	 * the emotion has to exist within the VMAvatar.emotions list
-	 * 
-	 * @param emotionName 	: name of the emotion to apply	 
-	 */
-	public void setEmotion(String emotionName)
-	{
-		FacePose EmotiPose = emotions.get(emotionName);
-		if (EmotiPose != null) 
-		{
-		   mHead.faceModel.BSWeights=EmotiPose.faceWeights.clone();
-		   mHead.teethModel.BSWeights=EmotiPose.mouthWeights.clone();
-		   mHead.tongueModel.BSWeights=EmotiPose.mouthWeights.clone();
-		} else 
-		{
-		    // No such key so vacation time...
-		}
-	}
-	
 	/**
 	 * sets the current blendshape weights to the given face expression
 	 *  
@@ -529,26 +304,7 @@ public class VMAvatar
 
 	}
 	
-	/**
-	 * Modifies the specified face blendshape weight
-	 * @param blendID  index of the blendshape to be modified
-	 * @param weight  desired weight
-	 */
-	public void setFaceBlendshape(int blendID, float weight)
-	{
-		if(blendID>0&&blendID<mHead.faceModel.BSWeights.length)
-			mHead.faceModel.BSWeights[blendID]=weight;
-	}
-	
-	/**
-	 * Modifies the whole face blendshape weights 
-	 * @param weights weights to be applied
-	 */
-	public void setFaceBlendshape(float[] weights)
-	{
-		if(weights.length==mHead.faceModel.BSWeights.length)
-			mHead.faceModel.BSWeights=weights;
-	}
+
 
 	/**
 	 * Modifies the whole face blendshape weights to 0.0
@@ -556,31 +312,6 @@ public class VMAvatar
 	public void setNeutralFace()
 	{
 		animator.animEngine.blend();
-	}
-	
-	/**
-	 * Modifies the specified mouth blendshape weight
-	 * @param blendID index of the mouth blendshape to be modified
-	 * @param weight desired weight value
-	 */
-	public void setMouthBlendshape(int blendID, float weight)
-	{
-		if(blendID>0&&blendID<mHead.teethModel.BSWeights.length)
-			mHead.teethModel.BSWeights[blendID]=weight;
-		if(blendID>0&&blendID<mHead.tongueModel.BSWeights.length)
-			mHead.tongueModel.BSWeights[blendID]=weight;
-	}
-	
-	/**
-	 * Modifies the whole mouth blendshape weights 
-	 * @param weights weights to be applied
-	 */
-	public void setMouthBlendshape(float[] weights)
-	{
-		if(weights.length==mHead.teethModel.BSWeights.length)
-			mHead.teethModel.BSWeights=weights;
-		if(weights.length==mHead.tongueModel.BSWeights.length)
-			mHead.tongueModel.BSWeights=weights;
 	}
 	
 	/**
@@ -687,8 +418,6 @@ public class VMAvatar
 	 */
     private void useShader()
     {
-        //Log.i(TAG,"useShader!");
-
         GLES20.glUseProgram(mProgram);
         VMShaderUtil.checkGlError("glUseProgram");
 
@@ -778,73 +507,6 @@ public class VMAvatar
     }
 
 	/**
-	 * render the models in the Extra Models group
-	 */
-	private void renderExtraModels()
-	{
-		//load extra textures
-		for(int i=0; i<extraModels.size();i++)
-		{
-
-
-
-
-			//bind buffers
-	    	// vertex array
-	        GLES20.glVertexAttribPointer(mrm_VertexHandle, 3, GLES20.GL_FLOAT, false,0, extraModels.get(i).mVerticesBuffer);
-	        VMShaderUtil.checkGlError("glVertexAttribPointer mrm_VertexHandle");
-	        GLES20.glEnableVertexAttribArray(mrm_VertexHandle);
-	        VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_VertexHandle");
-
-	        // normal array
-	        GLES20.glVertexAttribPointer(mrm_NormalHandle, 3, GLES20.GL_FLOAT, false, 0,  extraModels.get(i).mNormalsBuffer);		VMShaderUtil.checkGlError("glVertexAttribPointer mrm_NormalHandle");
-	        GLES20.glEnableVertexAttribArray(mrm_NormalHandle);																			VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_NormalHandle");
-
-	        if(YES_TAN) {
-				// tangent array
-				GLES20.glVertexAttribPointer(mrm_TangentHandle, 3, GLES20.GL_FLOAT, false, 0, extraModels.get(i).mTangentsBuffer);
-				VMShaderUtil.checkGlError("glVertexAttribPointer mrm_TangentHandle");
-				GLES20.glEnableVertexAttribArray(mrm_TangentHandle);
-				VMShaderUtil.checkGlError("glEnableVertexAttribArray mrm_TangentHandle");
-			}
-
-			// UV array
-	        GLES20.glVertexAttribPointer(mrm_TexCoord0Handle, 2, GLES20.GL_FLOAT, false, 0,  extraModels.get(i).mTexCoordsBuffer);	VMShaderUtil.checkGlError("glVertexAttribPointer mrm_TexCoord0Handle");
-			GLES20.glEnableVertexAttribArray(mrm_TexCoord0Handle);
-
-			//bind material, textures
-			GLES20.glUniform4f(mfvAmbientHandle,	 extraMaterials.get(i).matrix[0], extraMaterials.get(i).matrix[1], extraMaterials.get(i).matrix[2],  extraMaterials.get(i).matrix[3]);		VMShaderUtil.checkGlError("glUniform4f mfvAmbientHandle");
-			GLES20.glUniform4f(mfvDiffuseHandle,	 extraMaterials.get(i).matrix[4], extraMaterials.get(i).matrix[5], extraMaterials.get(i).matrix[6],  extraMaterials.get(i).matrix[7]);		VMShaderUtil.checkGlError("glUniform4f mfvDiffuseHandle");
-			GLES20.glUniform4f(mfvSpecularHandle,	 extraMaterials.get(i).matrix[8], extraMaterials.get(i).matrix[9], extraMaterials.get(i).matrix[10],  extraMaterials.get(i).matrix[11]);	VMShaderUtil.checkGlError("glUniform4f mfvSpecularHandle");
-			GLES20.glUniform1f(mfSpecularPowerHandle,extraMaterials.get(i).matrix[12]);																														VMShaderUtil.checkGlError("glUniform1f mfSpecularPowerHandle");
-
-			// turn on the texture if there is one
-			if (extraMaterials.get(i).textureID != -1 )
-			{
-
-				GLES20.glEnableVertexAttribArray(mrm_TexCoord0Handle);
-				GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-				GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, extraMaterials.get(i).textureID);
-				GLES20.glUniform1i(miTexturedHandle, 1);
-
-			}
-			else
-				GLES20.glUniform1i(miTexturedHandle, 0);
-
-			if (extraMaterials.get(i).bumpID != -1 )
-			{
-
-				GLES20.glEnableVertexAttribArray(mrm_TexCoord0Handle);
-				GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
-				GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, extraMaterials.get(i).bumpID);
-
-			}
-
-			GLES20.glDrawElements(GLES20.GL_TRIANGLES,extraModels.get(i).mIndexBuffer.capacity(), GLES20.GL_UNSIGNED_SHORT, extraModels.get(i).mIndexBuffer);		VMShaderUtil.checkGlError("glDrawElements");
-		}
-	}
-
-	/**
 	 * Associates a face blendshape to a mouth blendshape
 	 * The face blendshape will control the weight of its associated blendshape.
 	 * Needed for actions that need to be done together.
@@ -853,6 +515,7 @@ public class VMAvatar
 	 * @param faceBlendshape index of the face blendshape
 	 * @param mouthBlendshape: index of the mouth blendshape
 	 */
+
 	public void addMouthLink(int faceBlendshape, int mouthBlendshape)
 	{
 		mouthLinks.put(faceBlendshape, mouthBlendshape);
@@ -866,9 +529,6 @@ public class VMAvatar
 	private void doMouthLinks()
 	{
 		//iterate over the keys
-//		for (Integer key : mouthLinks.keySet())
-//		{
-//			if(key!=null)
         for(int key=0; key<mHead.faceModel.nBS; key++){
             //Log.d("check", "key: "+key+", face: "+mHead.faceModel.nBS+", tongue: "+mHead.tongueModel.nBS);
             mHead.teethModel.BSWeights[mouthLinks.get(key)]=mHead.faceModel.BSWeights[key];
@@ -886,9 +546,6 @@ public class VMAvatar
 	 */
 	public void Render(float[] M, float[] V, float P[] )
 	{
-//		GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
-//		GLES20.glEnable(GLES20.GL_BLEND);
-
 		//apply the blendshapes to the neutral face
     	mHead.faceModel.applyBlendShapes();
 
@@ -896,8 +553,6 @@ public class VMAvatar
     	doMouthLinks();
     	mHead.teethModel.applyBlendShapes();
 		mHead.tongueModel.applyBlendShapes();
-
-
 
 		useShader();
 
@@ -986,40 +641,6 @@ public class VMAvatar
 		}
 
 		/**
-		 * Returns the VMBOModel of the face
-		 * @return faceModel VMBOModel
-		 */
-		public VMBOModel getFaceModel()
-		{
-			return faceModel;
-		}
-
-		/**
-		 * Returns the VMBOModel of the mouth
-		 * @return mouthModel VMBOModel
-		 */
-		public VMBOModel getTeethModel()
-		{
-			return teethModel;
-		}
-		public VMBOModel getTongueModel()
-		{
-			return tongueModel;
-		}
-
-
-		/**
-		 *Set the translation of the head with respect to the world coordinate frame
-		 *
-		 * @param trans float[] 3D orientation vector for the eyes rx,ry,rz
-		 *
-		 */
-		public void setTranslation(float[] trans)
-		{
-			translation=trans;
-		}
-
-		/**
 		 *Sets the orientation of the head
 		 *
 		 * @param rot float[] 3D orientation vector rx,ry,rz
@@ -1052,10 +673,6 @@ public class VMAvatar
 		 * @param eyeRot float[] 3D orientation vector for the eyes rx,ry,rz
 		 *
 		 */
-		public void setEyeRotation(float[] eyeRot)
-		{
-			mEye.setRotation(eyeRot);
-		}
 
 		private float tempElapsedTime = 0f;
 		private long elapsedRealtime = 0;
@@ -1071,7 +688,6 @@ public class VMAvatar
 			for(int i = 0; i < 2; i++){
 				currentEyeRotation[i] += (desiredEyeRotation[i] - currentEyeRotation[i]) * 0.4f;
 			}
-			//mEye.setRotation(currentEyeRotation);
 			if(tempElapsedTime > interval) {
 				tempElapsedTime = 0f;
 				for(int i = 0; i < 2; i++){
@@ -1109,15 +725,11 @@ public class VMAvatar
 			//load eye texture
 			mEye.loadTextures();
 
-			//Log.e(TAG, "this works");
-
 			//load extra textures
 			for(int i=0; i<extraHeadMaterials.size();i++)
 			{
 				if (extraHeadMaterials.get(i).textureID == -1)	extraHeadMaterials.get(i).loadTexture();
 			}
-
-			//Log.e(TAG, "this works too");
 		}
 		/**
 		 * Renders the Face model
@@ -1188,13 +800,6 @@ public class VMAvatar
 				GLES20.glUniform1i(mTextureUniformHandle, 1);
 			}
 
-//			if (faceMaterial.normalID != -1)
-//			{
-//				int mTextureUniformHandle = GLES20.glGetUniformLocation(mProgram, "normalMap");
-//				GLES20.glActiveTexture(GLES20.GL_TEXTURE2);
-//				GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, faceMaterial.normalID);
-//				GLES20.glUniform1i(mTextureUniformHandle, 2);
-//			}
 			//draw models
             GLES20.glUniform1i(miIndexHandle, 3);
 			GLES20.glDrawElements(GLES20.GL_TRIANGLES,faceModel.mIndexBuffer.capacity(), GLES20.GL_UNSIGNED_SHORT, faceModel.mIndexBuffer);		VMShaderUtil.checkGlError("glDrawElements");
@@ -1310,8 +915,6 @@ public class VMAvatar
 			{
 
 
-
-
 				//bind buffers
 		    	// vertex array
 		        GLES20.glVertexAttribPointer(mrm_VertexHandle, 3, GLES20.GL_FLOAT, false,0, extraHeadModels.get(i).mVerticesBuffer);		VMShaderUtil.checkGlError("glVertexAttribPointer mrm_VertexHandle");
@@ -1413,8 +1016,6 @@ public class VMAvatar
 
 
 			setEyeRandomRotation();
-	        //mEye.rotation[0]=rotation[0]+rotationOffset[0];
-			//mEye.rotation[1]=rotation[1]+rotationOffset[1];
 	        if(followEyes)
 			{
 	        	mEye.rotation[0]*=-1;
@@ -1466,21 +1067,6 @@ public class VMAvatar
 			translation_right = transR;
 		}
 		
-		/**
-		 *Sets the orientation of the eyes 
-		 * 
-		 * @param rot float[] 3D orientation vector for the eyes rx,ry,rz 
-		 */
-		public void setRotation(float[] rot)
-		{
-			rotation=rot;
-			
-			for (int i=0; i<3; i++)
-			{
-				if(rotation[i]>45.0f) rotation[i]=45.0f;
-				if(rotation[i]<-45.0f) rotation[i]=-45.0f;
-			}
-		}
 		/**
 		 * Load textures associated with the eyes
 		 */
@@ -1544,7 +1130,6 @@ public class VMAvatar
 				GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, eyeMaterial.bumpID);
 				GLES20.glUniform1i(mTextureUniformHandle, 1);
 			}
-
 
 
 			//LEFT EYE///////////////////////////////////////////////////////////////////////////////////////

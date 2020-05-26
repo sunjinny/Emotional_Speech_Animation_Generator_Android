@@ -344,14 +344,6 @@ public class VMBOLoader
 			tanbb.order(ByteOrder.nativeOrder());
 			model.mTangentsBuffer = tanbb.asFloatBuffer();
 
-//			for (int i = 0; i < 3 * model.nVtx; i+=3)
-//			{
-//				float val = 1.0f;
-//				model.mTangentsBuffer.put(1.0f);
-//				model.mTangentsBuffer.put(0.5f);
-//				model.mTangentsBuffer.put(0.5f);
-//			}
-
 			//Indices Buffer
 			ByteBuffer ibb = ByteBuffer.allocateDirect(model.nFcs*3*BytesPerShort);
 			ibb.order(ByteOrder.nativeOrder());
