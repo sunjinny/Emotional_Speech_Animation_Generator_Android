@@ -74,7 +74,6 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
 				mAvatar_1 = VMAvatarLoader.loadAvatar(ctx, avatarFileName);
 				mAvatar_1.initRenderScript();
 				mAvatar_1.enableBlinking(true);
-				//String[] keys= mAvatar_1.getAnimationList();
 			}
 			public Runnable init(Context ctx, String avatarFileName) {
 				this.ctx=ctx;
@@ -126,24 +125,6 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
 		}catch (InterruptedException e){
 			//TODO
 		}
-
-//		new Thread() {
-//	           @Override
-//	           public void run() {
-//	                  try {
-//						  final Handler handler = new Handler(Looper.getMainLooper());
-//						  handler.post(new Runnable() {
-//						  //((MainActivity) mContext).runOnUiThread(new Runnable() {
-//							  @Override
-//							  public void run()
-//							  {
-//								   // code runs in a UI(main) thread
-//								   String[] keys= mAvatar_1.getAnimationList();
-//							   }
-//						  });
-//	                  } catch (final Exception ex){  /*TODO del with exceptions*/  }
-//	           }
-//	    }.start();
     }
 
 	@Override

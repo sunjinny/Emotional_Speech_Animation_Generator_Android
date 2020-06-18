@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity { //for test
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        float startTime = SystemClock.elapsedRealtime();
+        //float startTime = SystemClock.elapsedRealtime();
         setContentView(R.layout.activity_main);
         //TODO: Get Fragment Manager
         AvatarFragment fragment = (AvatarFragment) getFragmentManager().findFragmentById(R.id.fragment);
@@ -104,8 +104,8 @@ public class MainActivity extends AppCompatActivity { //for test
                 }
             }
         });
-        float endTime = SystemClock.elapsedRealtime();
-        Log.i("time test", Float.toString((endTime-startTime)/(float)1000.0));
+        //float endTime = SystemClock.elapsedRealtime();
+        //Log.i("time test", Float.toString((endTime-startTime)/(float)1000.0));
 
     }
 
