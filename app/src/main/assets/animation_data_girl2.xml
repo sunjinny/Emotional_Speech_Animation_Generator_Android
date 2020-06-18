@@ -2,6 +2,14 @@
 <animation name="speech_emotion_animation">
 	<gender gender="30002" />
 	<hair_model hair_model="1" />
+   	<emotion_strength>
+      		<emotion emotion="10001" strength="0.5" />
+      		<emotion emotion="10002" strength="0.5" />
+      		<emotion emotion="10003" strength="0.5" />
+      		<emotion emotion="10004" strength="0.5" />
+      		<emotion emotion="10006" strength="0.5" />
+      		<emotion emotion="10007" strength="0.5" />
+   	</emotion_strength>
 	<keyframeList>
 		<key t="0">
 			<faceWeights>0.5437049865722656 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.4729999899864197 0.0 0.0 0.0 0.0 0.0 0.0 0.06800000369548798 0.0 0.0 0.0 0.0 0.0022512000054121027 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.05898318976163863 0.0 0.024558787196874612 0.028700943812727923 0.0 0.0 0.00981301227584481 0.01565441664308309 0.2103654813766479 0.0 0.0012681492744013663 0.0 0.0 0.0 0.0 0.0 0.039496409073472016 0.00115964381955564 0.0 0.0 </faceWeights>

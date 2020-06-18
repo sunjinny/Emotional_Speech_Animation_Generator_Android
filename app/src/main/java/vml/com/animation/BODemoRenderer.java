@@ -66,7 +66,7 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
 		fps= new FPSCounter();
 		mContext = context;
 
-		Thread theView1 = new Thread(new Runnable() {
+		Thread thread1 = new Thread(new Runnable() {
 			Context ctx;
 			String avatarFileName;
 			@Override
@@ -74,6 +74,7 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
 				mAvatar_1 = VMAvatarLoader.loadAvatar(ctx, avatarFileName);
 				mAvatar_1.initRenderScript();
 				mAvatar_1.enableBlinking(true);
+				//String[] keys= mAvatar_1.getAnimationList();
 			}
 			public Runnable init(Context ctx, String avatarFileName) {
 				this.ctx=ctx;
@@ -81,9 +82,9 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
 				return(this);
 			}
 		}.init(context, "Girl_1.xml"));
-		theView1.start();
+		thread1.start();
 
-		Thread theView2 = new Thread(new Runnable() {
+		Thread thread2 = new Thread(new Runnable() {
 			Context ctx;
 			String avatarFileName;
 			@Override
@@ -98,10 +99,10 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
 				return(this);
 			}
 		}.init(context, "Girl_2.xml"));
-		theView2.start();
+		thread2.start();
 
 
-		Thread theView3 = new Thread(new Runnable() {
+		Thread thread3 = new Thread(new Runnable() {
 			Context ctx;
 			String avatarFileName;
 			@Override
@@ -116,45 +117,33 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
 				return(this);
 			}
 		}.init(context, "Man.xml"));
-		theView3.start();
+		thread3.start();
 
-		//mAvatar_1=VMAvatarLoader.loadAvatar(context, "Girl_1.xml");
-		//mAvatar_2=VMAvatarLoader.loadAvatar(context, "Girl_2.xml");
-		//mAvatarMan=VMAvatarLoader.loadAvatar(context, "Man.xml");
-
-		//mAvatar_1.initRenderScript();
-		//mAvatar_2.initRenderScript();
-		//mAvatarMan.initRenderScript();
-
-		//mAvatar_1.enableBlinking(true);
-		//mAvatar_2.enableBlinking(true);
-		//mAvatarMan.enableBlinking(true);
-
-		//mAvatar.enableHeadMotion(true);
 		try {
-			theView1.join();
-			theView2.join();
-			theView3.join();
+			thread1.join();
+			thread2.join();
+			thread3.join();
 		}catch (InterruptedException e){
 			//TODO
 		}
-		new Thread() {
-	           @Override
-	           public void run() {
-	                  try {
-						  final Handler handler = new Handler(Looper.getMainLooper());
-						  handler.post(new Runnable() {
-						  //((MainActivity) mContext).runOnUiThread(new Runnable() {
-							  @Override
-							  public void run()
-							  {
-								   // code runs in a UI(main) thread
-								   String[] keys= mAvatar_1.getAnimationList();
-							   }
-						  });
-	                  } catch (final Exception ex){  /*TODO del with exceptions*/  }
-	           }
-	    }.start();
+
+//		new Thread() {
+//	           @Override
+//	           public void run() {
+//	                  try {
+//						  final Handler handler = new Handler(Looper.getMainLooper());
+//						  handler.post(new Runnable() {
+//						  //((MainActivity) mContext).runOnUiThread(new Runnable() {
+//							  @Override
+//							  public void run()
+//							  {
+//								   // code runs in a UI(main) thread
+//								   String[] keys= mAvatar_1.getAnimationList();
+//							   }
+//						  });
+//	                  } catch (final Exception ex){  /*TODO del with exceptions*/  }
+//	           }
+//	    }.start();
     }
 
 	@Override
