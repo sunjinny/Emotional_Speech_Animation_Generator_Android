@@ -268,45 +268,45 @@ public class VMBOLoader
 		DataInputStream reader;
 
 		//opening the file
-		try  
-		{
-			reader = new DataInputStream(assetManager.open(bobFilePath));
+		try
+			{
+				reader = new DataInputStream(assetManager.open(bobFilePath));
 
-			//Parsing header
-			model.nBlendVtx =	reader.readInt();
-			model.nVtx =		reader.readInt();		
-			model.nFcs =		reader.readInt();
-			model.uNorm=		reader.readBoolean();
-			model.uUV  =		reader.readBoolean();
-			model.nBS  =(short)	reader.readInt();
-			//Log.i(TAG,"verts : "+model.nBlendVtx+" / "+model.nVtx + "   faces : "+model.nFcs+ "   blends : "+model.nBS+ "   use N/B : "+model.uNorm+" "+model.uUV);
-			model.BSNames= new String[model.nBS];
-			
-			//read blend names
-			for(int i=0; i<model.nBS; ++i)
-			{				
-				int curStrSize=reader.readInt();
-				byte[] curStr= new byte[curStrSize];
-				
-				reader.read(curStr);				
-				model.BSNames[i]=new String(curStr,"UTF_8");
+				//Parsing header
+				model.nBlendVtx =	reader.readInt();
+				model.nVtx =		reader.readInt();
+				model.nFcs =		reader.readInt();
+				model.uNorm=		reader.readBoolean();
+				model.uUV  =		reader.readBoolean();
+				model.nBS  =(short)	reader.readInt();
+				//Log.i(TAG,"verts : "+model.nBlendVtx+" / "+model.nVtx + "   faces : "+model.nFcs+ "   blends : "+model.nBS+ "   use N/B : "+model.uNorm+" "+model.uUV);
+				model.BSNames= new String[model.nBS];
 
-				//Log.i(TAG,"blendshape "+i+" : "+curStrSize+"  "+model.BSNames[i]);
-			}
+				//read blend names
+				for(int i=0; i<model.nBS; ++i)
+				{
+					int curStrSize=reader.readInt();
+					byte[] curStr= new byte[curStrSize];
 
-			//Parsing Body
-			model.NVertices = new float[3*model.nBlendVtx];		
-			model.BSVertices= new float[3*model.nBS*model.nBlendVtx];
-			model.BSNormals = new float[3*model.nBS*model.nBlendVtx];
-			model.BSWeights = new float[model.nBS];
+					reader.read(curStr);
+					model.BSNames[i]=new String(curStr,"UTF_8");
 
-			//1--Vertices
-			//Vertices Buffer//////////////////////////////////////
-			ByteBuffer vbb = ByteBuffer.allocateDirect(model.nVtx*3*BytesPerFloat); // nVertex * 3 dimension * 4 (size of Float)
-			vbb.order(ByteOrder.nativeOrder());
-			model.mVerticesBuffer = vbb.asFloatBuffer();
-			
-			for (int i = 0; i <3*model.nVtx; i ++)
+					//Log.i(TAG,"blendshape "+i+" : "+curStrSize+"  "+model.BSNames[i]);
+				}
+
+				//Parsing Body
+				model.NVertices = new float[3*model.nBlendVtx];
+				model.BSVertices= new float[3*model.nBS*model.nBlendVtx];
+				model.BSNormals = new float[3*model.nBS*model.nBlendVtx];
+				model.BSWeights = new float[model.nBS];
+
+				//1--Vertices
+				//Vertices Buffer//////////////////////////////////////
+				ByteBuffer vbb = ByteBuffer.allocateDirect(model.nVtx*3*BytesPerFloat); // nVertex * 3 dimension * 4 (size of Float)
+				vbb.order(ByteOrder.nativeOrder());
+				model.mVerticesBuffer = vbb.asFloatBuffer();
+
+				for (int i = 0; i <3*model.nVtx; i ++)
 			{
 				float val= reader.readFloat();
 				model.mVerticesBuffer.put(val);

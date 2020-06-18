@@ -66,20 +66,78 @@ public class BODemoRenderer implements GLSurfaceView.Renderer
 		fps= new FPSCounter();
 		mContext = context;
 
-		mAvatar_1=VMAvatarLoader.loadAvatar(context, "Girl_1.xml");
-		mAvatar_2=VMAvatarLoader.loadAvatar(context, "Girl_2.xml");
-		mAvatarMan=VMAvatarLoader.loadAvatar(context, "Man.xml");
+		Thread theView1 = new Thread(new Runnable() {
+			Context ctx;
+			String avatarFileName;
+			@Override
+			public void run() {
+				mAvatar_1 = VMAvatarLoader.loadAvatar(ctx, avatarFileName);
+				mAvatar_1.initRenderScript();
+				mAvatar_1.enableBlinking(true);
+			}
+			public Runnable init(Context ctx, String avatarFileName) {
+				this.ctx=ctx;
+				this.avatarFileName=avatarFileName;
+				return(this);
+			}
+		}.init(context, "Girl_1.xml"));
+		theView1.start();
 
-		mAvatar_1.initRenderScript();
-		mAvatar_2.initRenderScript();
-		mAvatarMan.initRenderScript();
+		Thread theView2 = new Thread(new Runnable() {
+			Context ctx;
+			String avatarFileName;
+			@Override
+			public void run() {
+				mAvatar_2 = VMAvatarLoader.loadAvatar(ctx, avatarFileName);
+				mAvatar_2.initRenderScript();
+				mAvatar_2.enableBlinking(true);
+			}
+			public Runnable init(Context ctx, String avatarFileName) {
+				this.ctx=ctx;
+				this.avatarFileName=avatarFileName;
+				return(this);
+			}
+		}.init(context, "Girl_2.xml"));
+		theView2.start();
 
-		mAvatar_1.enableBlinking(true);
-		mAvatar_2.enableBlinking(true);
-		mAvatarMan.enableBlinking(true);
+
+		Thread theView3 = new Thread(new Runnable() {
+			Context ctx;
+			String avatarFileName;
+			@Override
+			public void run() {
+				mAvatarMan = VMAvatarLoader.loadAvatar(ctx, avatarFileName);
+				mAvatarMan.initRenderScript();
+				mAvatarMan.enableBlinking(true);
+			}
+			public Runnable init(Context ctx, String avatarFileName) {
+				this.ctx=ctx;
+				this.avatarFileName=avatarFileName;
+				return(this);
+			}
+		}.init(context, "Man.xml"));
+		theView3.start();
+
+		//mAvatar_1=VMAvatarLoader.loadAvatar(context, "Girl_1.xml");
+		//mAvatar_2=VMAvatarLoader.loadAvatar(context, "Girl_2.xml");
+		//mAvatarMan=VMAvatarLoader.loadAvatar(context, "Man.xml");
+
+		//mAvatar_1.initRenderScript();
+		//mAvatar_2.initRenderScript();
+		//mAvatarMan.initRenderScript();
+
+		//mAvatar_1.enableBlinking(true);
+		//mAvatar_2.enableBlinking(true);
+		//mAvatarMan.enableBlinking(true);
 
 		//mAvatar.enableHeadMotion(true);
-
+		try {
+			theView1.join();
+			theView2.join();
+			theView3.join();
+		}catch (InterruptedException e){
+			//TODO
+		}
 		new Thread() {
 	           @Override
 	           public void run() {

@@ -3,7 +3,9 @@ package vml.com.animation;
 import android.content.res.AssetManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,14 +21,14 @@ public class MainActivity extends AppCompatActivity { //for test
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
+        float startTime = SystemClock.elapsedRealtime();
+        setContentView(R.layout.activity_main);
         //TODO: Get Fragment Manager
         AvatarFragment fragment = (AvatarFragment) getFragmentManager().findFragmentById(R.id.fragment);
         avatarAnimation = new AvatarAnimation(fragment);
 
         mediaPlayer = MediaPlayer.create(this, R.raw.surprise); //for test
-
 
         Button button = (Button) findViewById(R.id.button); // Girl 1
         button.setOnClickListener(new View.OnClickListener() {
@@ -102,6 +104,8 @@ public class MainActivity extends AppCompatActivity { //for test
                 }
             }
         });
+        float endTime = SystemClock.elapsedRealtime();
+        Log.i("time test", Float.toString((endTime-startTime)/(float)1000.0));
 
     }
 

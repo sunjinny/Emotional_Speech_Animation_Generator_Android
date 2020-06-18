@@ -28,7 +28,7 @@ import vml.com.vm.utils.KeyFrame;
  * @author Roger Blanco i Ribera, Sunjin Jung
  *
  */
-public class VMAvatarLoader 
+public class VMAvatarLoader
 {
 	private static String TAG = "AvatarLoader";
 	static final String outputEncoding = "UTF-8";
@@ -38,7 +38,7 @@ public class VMAvatarLoader
 	 * @param ctx					Activity context
 	 * @param avatarFileName		complete path to the avatar XML file
 	 * @return 					returns the loaded avatar
-	 */		
+	 */
 	public static VMAvatar loadAvatar(Context ctx, String avatarFileName)
 	{
 		AssetManager assetManager = ctx.getResources().getAssets();
@@ -69,7 +69,7 @@ public class VMAvatarLoader
 			Element headNode = (Element) avatarEl.getElementsByTagName( "head" ).item(0);			
 			
 			Element faceNode = (Element) headNode.getElementsByTagName("face").item(0);
-			sfaceModel	 = faceNode.getAttributes().getNamedItem("model").getNodeValue();			
+			sfaceModel	 = faceNode.getAttributes().getNamedItem("model").getNodeValue();
 			sfaceMaterial= faceNode.getAttributes().getNamedItem("material").getNodeValue();
 
 			Element teethNode = (Element) headNode.getElementsByTagName("teeth").item(0);
