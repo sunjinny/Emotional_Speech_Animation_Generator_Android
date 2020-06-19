@@ -7,6 +7,7 @@ This is the part of Emotional Facial Animation module for Flagship project by [V
 
 * (2020/04/29) 4월 5차년도 베이스 코드 업데이트 되었습니다.
 * (2020/05/28) 5월 5차년도 2차 베이스 코드 업데이트 되었습니다.
+* (2020/06/19) 6월 5차년도 1차 정식 코드 업데이트 되었습니다.
 
 ***
 
